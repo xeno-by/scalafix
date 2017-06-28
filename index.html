@@ -150,7 +150,7 @@ span.hljs-tag, span.hljs-symbol{
     <a href="https://github.com/coursier/coursier#command-line">coursier</a>.
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// coursier
-coursier bootstrap ch.epfl.scala:scalafix-cli_2.12.2:0.4.2 -f --main scalafix.cli.Cli -o scalafix
+coursier bootstrap ch.epfl.scala:scalafix-cli_2.11.11:0.4.2 -f --main scalafix.cli.Cli -o scalafix
 ./scalafix --help
 
 // homebrew
@@ -166,7 +166,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.4.2+30-15aae040
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.4.2+36-0ce4d4c4
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -319,11 +319,11 @@ explicitReturnTypes.skipSimpleDefinitions = true
 patches.removeGlobalImports = []
 patches.addGlobalImports = []
 patches.replacements = []
-reporter.outStream = java.io.PrintStream@588ddb97
+reporter.outStream = java.io.PrintStream@588861e4
 reporter.minSeverity = &quot;[34minfo[0m&quot;
 reporter.filter.&quot;.*&quot;
 reporter.includeLoggerName = false
-parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@1e38f3fa
+parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@c7a9423
 debug.printSymbols = false
 fatalWarnings = true
 dialect = Scala211</code></pre>
@@ -679,7 +679,7 @@ class SemanticPatchOps(ctx: RewriteCtx, mirror: Mirror) {
     Replace(from, to, additionalImports, normalized)
   def renameSymbol(from: Symbol, to: Name, normalize: Boolean = false): Patch =
     RenameSymbol(from, to, normalize)
-}</code><a class=" scalatex-site-Styles-headerLink" style="position: absolute;right: 0.5em;top: 0.5em;display: block;font-size: 24px;" href="https://github.com/scalacenter/scalafix/tree/master/scalafix-core/src/main/scala/scalafix/patch/PatchOps.scala#L14-L37" target="_blank"><i class="fa fa-link "></i></a></pre>
+}</code><a class=" scalatex-site-Styles-headerLink" style="position: absolute;right: 0.5em;top: 0.5em;display: block;font-size: 24px;" href="https://github.com/scalacenter/scalafix/tree/master/scalafix-core/shared/src/main/scala/scalafix/patch/PatchOps.scala#L14-L37" target="_blank"><i class="fa fa-link "></i></a></pre>
 
       Some things are typically easier to do on the token level and other
       things are easier to do on the tree level.
@@ -1102,13 +1102,13 @@ imports.groupByPrefix</code></pre></li>
     <li>
       NOTE.
       scalafix-core and scalafix-cli are now published as
-      <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.12.2</code> suffix. To depend on them,
+      <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.4.2+30-15aae040&quot; cross CrossVersion.full
+  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.4.2+36-0ce4d4c4&quot; cross CrossVersion.full
 // Error
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.4.2+30-15aae040&quot;</code></pre></li>
+  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.4.2+36-0ce4d4c4&quot;</code></pre></li>
     <li>
       NOTE.
       This version depends on a pre-release of scala.meta, which is publised
