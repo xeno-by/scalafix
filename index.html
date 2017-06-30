@@ -150,7 +150,7 @@ span.hljs-tag, span.hljs-symbol{
     <a href="https://github.com/coursier/coursier#command-line">coursier</a>.
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// coursier
-coursier bootstrap ch.epfl.scala:scalafix-cli_2.12.2:0.4.2 -f --main scalafix.cli.Cli -o scalafix
+coursier bootstrap ch.epfl.scala:scalafix-cli_2.11.11:0.4.2 -f --main scalafix.cli.Cli -o scalafix
 ./scalafix --help
 
 // homebrew
@@ -166,7 +166,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.4.2+42-17290327
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.4.2+44-605e8765
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -320,11 +320,11 @@ x = &quot;{}&quot;
 patches.removeGlobalImports = []
 patches.addGlobalImports = []
 patches.replacements = []
-reporter.outStream = java.io.PrintStream@10016fea
+reporter.outStream = java.io.PrintStream@3299a25b
 reporter.minSeverity = &quot;[34minfo[0m&quot;
 reporter.filter.&quot;.*&quot;
 reporter.includeLoggerName = false
-parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@37b80a4b
+parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@6f540c9a
 debug.printSymbols = false
 fatalWarnings = true
 dialect = Scala211</code></pre>
@@ -1100,13 +1100,13 @@ imports.groupByPrefix</code></pre></li>
     <li>
       NOTE.
       scalafix-core and scalafix-cli are now published as
-      <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.12.2</code> suffix. To depend on them,
+      <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.4.2+42-17290327&quot; cross CrossVersion.full
+  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.4.2+44-605e8765&quot; cross CrossVersion.full
 // Error
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.4.2+42-17290327&quot;</code></pre></li>
+  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.4.2+44-605e8765&quot;</code></pre></li>
     <li>
       NOTE.
       This version depends on a pre-release of scala.meta, which is publised
