@@ -150,7 +150,7 @@ span.hljs-tag, span.hljs-symbol{
     <a href="https://github.com/coursier/coursier#command-line">coursier</a>.
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// coursier
-coursier bootstrap ch.epfl.scala:scalafix-cli_2.11.11:0.4.2 -f --main scalafix.cli.Cli -o scalafix
+coursier bootstrap ch.epfl.scala:scalafix-cli_2.12.2:0.4.2 -f --main scalafix.cli.Cli -o scalafix
 ./scalafix --help
 
 // homebrew
@@ -324,7 +324,7 @@ reporter.outStream = java.io.PrintStream@2102080f
 reporter.minSeverity = &quot;[34minfo[0m&quot;
 reporter.filter.&quot;.*&quot;
 reporter.includeLoggerName = false
-parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@31591654
+parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@3a5bb723
 debug.printSymbols = false
 fatalWarnings = true
 dialect = Scala211</code></pre>
@@ -1100,7 +1100,7 @@ imports.groupByPrefix</code></pre></li>
     <li>
       NOTE.
       scalafix-core and scalafix-cli are now published as
-      <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
+      <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.12.2</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
   &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.4.2+53-d10d3cac&quot; cross CrossVersion.full
