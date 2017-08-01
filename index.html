@@ -166,7 +166,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M1+16-45dad9f4
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M1+17-b21212ce
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -313,7 +313,7 @@ debug.printSymbols = true</code></pre>
 
     The following is the list of all available options along with their
     default values.
-    <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"> = ScalafixConfig(scala.meta.internal.parsers.ScalametaParser$$anon$189@4d66bd7d,DebugConfig(false),true,true,PrintStreamReporter(java.io.PrintStream@72dc24e2,[34minfo[0m,FilterMatcher(.*,$a),false),ConfigRewritePatches(List(),List(),List()),Scala211,{})</code>
+    <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"> = ScalafixConfig(scala.meta.internal.parsers.ScalametaParser$$anon$189@23afb25c,DebugConfig(false),true,true,PrintStreamReporter(java.io.PrintStream@6ea9bba9,[34minfo[0m,FilterMatcher(.*,$a),false),ConfigRewritePatches(List(),List(),List()),Scala211,{})</code>
 
 
   
@@ -479,7 +479,7 @@ case List(1, 2, xs : _*)
       To use this rewrite:
       <ul>
         <li>
-          enable <code>-Ywarn-unused-import</code></li>
+          enable <code>-Yno-adapted-args</code></li>
         <li>
           disable <code>-Xfatal-warnings</code>. Unfortunately, the Scala compiler
           does not support finer grained control over the severity level
@@ -1064,10 +1064,10 @@ imports.groupByPrefix</code></pre></li>
       <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M1+16-45dad9f4&quot; cross CrossVersion.full
+  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M1+17-b21212ce&quot; cross CrossVersion.full
 // Error
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M1+16-45dad9f4&quot;</code></pre></li>
+  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M1+17-b21212ce&quot;</code></pre></li>
     <li>
       NOTE.
       This version depends on a pre-release of scala.meta, which is publised
