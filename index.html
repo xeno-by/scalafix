@@ -166,7 +166,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M2+6-6ef494b0
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M2+10-65701eee
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -317,7 +317,7 @@ debug.printSymbols = true</code></pre>
 
     The following is the list of all available options along with their
     default values.
-    <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"> = ScalafixConfig(scala.meta.internal.parsers.ScalametaParser$$anon$189@1bd8521a,DebugConfig(false),true,true,PrintStreamReporter(java.io.PrintStream@41f778ce,[34minfo[0m,FilterMatcher(.*,$a),false),ConfigRewritePatches(List(),List(),List()),Scala211,{})</code>
+    <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"> = ScalafixConfig(scala.meta.internal.parsers.ScalametaParser$$anon$189@4de44667,DebugConfig(false),true,true,PrintStreamReporter(java.io.PrintStream@60dd54e4,[34minfo[0m,FilterMatcher(.*,$a),false),ConfigRewritePatches(List(),List(),List()),Scala211,{})</code>
 
 
   
@@ -1072,10 +1072,10 @@ imports.groupByPrefix</code></pre></li>
       <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M2+6-6ef494b0&quot; cross CrossVersion.full
+  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M2+10-65701eee&quot; cross CrossVersion.full
 // Error
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M2+6-6ef494b0&quot;</code></pre></li>
+  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M2+10-65701eee&quot;</code></pre></li>
     <li>
       NOTE.
       This version depends on a pre-release of scala.meta, which is publised
