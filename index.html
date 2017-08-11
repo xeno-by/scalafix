@@ -59,7 +59,7 @@ span.hljs-tag, span.hljs-symbol{
 }
     </style><title>Scalafix - a Scala rewrite tool</title><script src="scripts.js"></script></head><body><div>
 
-<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafix-aScalarewritetool" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafix - a Scala rewrite tool<a class=" scalatex-site-Styles-headerLink" href="#Scalafix-aScalarewritetool" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">0.5.0-M3-7-e83cc4b6</h2></div><div class=" scalatex-site-Styles-content">
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafix-aScalarewritetool" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafix - a Scala rewrite tool<a class=" scalatex-site-Styles-headerLink" href="#Scalafix-aScalarewritetool" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">0.5.0-M3</h2></div><div class=" scalatex-site-Styles-content">
   
 
 <p>
@@ -100,7 +100,7 @@ span.hljs-tag, span.hljs-symbol{
     The sbt-plugin is the recommended integration for semantic rewrites.
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// ===&gt; project/plugins.sbt
-addSbtPlugin(&quot;ch.epfl.scala&quot; % &quot;sbt-scalafix&quot; % &quot;0.5.0-M3-7-e83cc4b6&quot;)
+addSbtPlugin(&quot;ch.epfl.scala&quot; % &quot;sbt-scalafix&quot; % &quot;0.5.0-M3&quot;)
 
 // ===&gt; build.sbt
 scalaVersion := &quot;2.12.3&quot; // 2.11.11 is also supported.
@@ -169,7 +169,7 @@ scalacOptions ++= scalafixScalacOptions.value // add this line
   <h1 id="scalafix-core" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scalafix-core" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scalafix-core</h1>
     Scalafix can be used as a library to run custom rewrites.
     <pre><code class="scala scalatex-site-Styles-highlightMe">// ===&gt; build.sbt
-libraryDependencies += &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M3-7-e83cc4b6&quot;
+libraryDependencies += &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M3&quot;
 </code></pre>
     Example usage of the syntactic API.
     <pre class=" scalatex-site-Styles-hoverContainer"><code class="scala scalatex-site-Styles-highlightMe">package fix
@@ -205,7 +205,7 @@ println(MyRewrite.Uppercase(&quot;object Hello { println('world) }&quot;))
     <a href="https://github.com/coursier/coursier#command-line">coursier</a>.
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// coursier
-coursier bootstrap ch.epfl.scala:scalafix-cli_2.11.11:0.5.0-M3-7-e83cc4b6 -f --main scalafix.cli.Cli -o scalafix
+coursier bootstrap ch.epfl.scala:scalafix-cli_2.11.11:0.5.0-M3 -f --main scalafix.cli.Cli -o scalafix
 ./scalafix --help
 
 // homebrew
@@ -221,7 +221,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M3-7-e83cc4b6
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M3+19-df84d305
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -236,9 +236,9 @@ Usage: scalafix [options] [&lt;file&gt;...]
   --config-str | -c  &lt;imports.organize=false&gt;
         String representing scalafix configuration
   --sourceroot  &lt;/foo/myproject&gt;
-        Absolute path passed to scalahost with -P:scalahost:sourceroot:&lt;path&gt;. Relative filenames persisted in the Semantic DB are absolutized by the sourceroot. Defaults to current working directory if not provided.
+        Absolute path passed to semanticdb with -P:semanticdb:sourceroot:&lt;path&gt;. Relative filenames persisted in the Semantic DB are absolutized by the sourceroot. Defaults to current working directory if not provided.
   --classpath  &lt;entry1.jar:entry2.jar:target/scala-2.12/classes&gt;
-        java.io.File.pathSeparator separated list of directories or jars containing '.semanticdb' files. The 'semanticdb' files are emitted by the scalahost-nsc compiler plugin and are necessary for semantic rewrites like ExplicitReturnTypes to function.
+        java.io.File.pathSeparator separated list of directories or jars containing '.semanticdb' files. The 'semanticdb' files are emitted by the semanticdb-scalac compiler plugin and are necessary for semantic rewrites like ExplicitReturnTypes to function.
   --rewrites | -r  &lt;ProcedureSyntax OR file:LocalFile.scala OR scala:full.Name OR https://gist.com/.../Rewrite.scala&gt;
         Rewrite rules to run.
   --stdout  
@@ -737,14 +737,15 @@ sbt tests/test</code></pre></p>
   def addRight(tok: Token, toAdd: String): Patch
   def addLeft(tok: Token, toAdd: String): Patch
 
-  def removeGlobalImport(symbol: Symbol)(implicit mirror: SemanticCtx): Patch
-  def addGlobalImport(symbol: Symbol)(implicit mirror: SemanticCtx): Patch
-  def addGlobalImport(importer: Importer)(implicit mirror: SemanticCtx): Patch
+  def removeGlobalImport(symbol: Symbol)(implicit semanticCtx: SemanticCtx): Patch
+  def addGlobalImport(symbol: Symbol)(implicit semanticCtx: SemanticCtx): Patch
+  def addGlobalImport(importer: Importer)(implicit semanticCtx: SemanticCtx): Patch
   def replaceSymbol(fromSymbol: Symbol.Global, toSymbol: Symbol.Global)(
-      implicit mirror: SemanticCtx): Patch
-  def replaceSymbols(toReplace: (String, String)*)(implicit mirror: SemanticCtx): Patch
-  def renameSymbol(fromSymbol: Symbol.Global, toName: String)(implicit mirror: SemanticCtx): Patch
-}</code><a class=" scalatex-site-Styles-headerLink" style="position: absolute;right: 0.5em;top: 0.5em;display: block;font-size: 24px;" href="https://github.com/scalacenter/scalafix/tree/master/scalafix-core/shared/src/main/scala/scalafix/patch/PatchOps.scala#L6-L25" target="_blank"><i class="fa fa-link "></i></a></pre>
+      implicit semanticCtx: SemanticCtx): Patch
+  def replaceSymbols(toReplace: (String, String)*)(implicit semanticCtx: SemanticCtx): Patch
+  def renameSymbol(fromSymbol: Symbol.Global, toName: String)(
+      implicit semanticCtx: SemanticCtx): Patch
+}</code><a class=" scalatex-site-Styles-headerLink" style="position: absolute;right: 0.5em;top: 0.5em;display: block;font-size: 24px;" href="https://github.com/scalacenter/scalafix/tree/master/scalafix-core/shared/src/main/scala/scalafix/patch/PatchOps.scala#L6-L26" target="_blank"><i class="fa fa-link "></i></a></pre>
 
       Some things are typically easier to do on the token level and other
       things are easier to do on the tree level.
@@ -808,7 +809,7 @@ sbt tests/test</code></pre></p>
     <h2 id="SemanticCtx" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#SemanticCtx" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>SemanticCtx</h2>
        A SemanticCtx encapsulates a compilation context, providing
        capabilities to perform semantic operations for <a href="#Semantic">Semantic</a> rewrites.
-       To learn more about mirrors and its associated concepts (Symbol,
+       To learn more about SemanticCtx and its associated data structures (Symbol,
        Denotation, ...), see the
        <a href="http://scalameta.org/tutorial/#Mirror">Scalameta tutorial</a>.
 
@@ -946,12 +947,12 @@ sbt tests/test</code></pre></p>
     <li>
       The <code>scalafix-nsc</code> compiler plugin has been removed in favor of
       the <a href="https://github.com/scalameta/scalameta/blob/master/changelog/1.8.0.md#semantic-db">Scalameta Semantic DB</a>,
-      that is emitted by the Scalameta <code>scalahost</code> compiler plugin.
+      that is emitted by the Scalameta <code>semanticdb-scalac</code> compiler plugin.
       This change enables Scalafix rewrites to run separately from compilation.
       This means that running scalafix will be much faster, since it no longer
       requires creating a custom instance of the Scala compiler and re-typechecking
       an entire project. Scalafix reads all of its inputs from <code>.semanticdb</code>
-      files that are created by the scalahost compiler plugin during regular compilation.</li>
+      files that are created by the semanticdb-scalac compiler plugin during regular compilation.</li>
     <li>
       The signature of <code>Rewrite.rewrite</code> has been simplified
       <pre><code class="scala scalatex-site-Styles-highlightMe">// before
@@ -963,13 +964,13 @@ def rewrite(ctx: RewriteCtx): Patch
 Seq[Patch]().asPatch: Patch</code></pre></li>
     <li>
       <code>RewriteCtx.mirror</code> has been removed. To write semantic rewrites,
-      accept the <code>Mirror</code> as a constructor parameter instead
+      accept <code>SemanticCtx</code> as a constructor parameter instead
       <pre><code class="scala scalatex-site-Styles-highlightMe">// before
 case object MySemanticRewrite extends Rewrite {
   def rewrite[T](ctx: RewriteCtx[T]): Seq[Patch]
 }
 // after
-case class MySemanticRewrite(mirror: Mirror) extends SemanticRewrite(mirror) {
+case class MySemanticRewrite(sctx: SemanticCtx) extends SemanticRewrite(sctx) {
   def rewrite(ctx: RewriteCtx): Patch
 }</code></pre></li>
     <li>
@@ -984,7 +985,7 @@ TokenPatch.AddGlobalImport(importer&quot;scala.meta._&quot;)
 // after
 ctx.addGlobalImport(importer&quot;scala.meta._&quot;)
 </code></pre>
-      The motivation for this change was to statically enforce that a <code>Mirror</code>
+      The motivation for this change was to statically enforce that a <code>SemanticCtx</code>
       is in scope during Patch creation.
       For the full available API of patch operations, see
       <a href="https://github.com/scalacenter/scalafix/blob/db6152304aaef19c4a8ba4fc77b732264bf52fec/scalafix-core/src/main/scala/scalafix/rewrite/SemanticPatchOps.scala">SemanticPatchOps</a></li>
@@ -1039,10 +1040,10 @@ imports.groupByPrefix</code></pre></li>
       <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M3-7-e83cc4b6&quot; cross CrossVersion.full
+  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M3+19-df84d305&quot; cross CrossVersion.full
 // Error
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M3-7-e83cc4b6&quot;</code></pre></li>
+  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M3+19-df84d305&quot;</code></pre></li>
     <li>
       NOTE.
       This version depends on a pre-release of scala.meta, which is publised
@@ -1172,4 +1173,4 @@ libraryDependencies +=
         );
       })
     })
-  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
