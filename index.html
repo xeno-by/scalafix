@@ -57,9 +57,9 @@
 span.hljs-tag, span.hljs-symbol{
     background: none;
 }
-    </style><title>Scalafix - a Scala rewrite tool</title><script src="scripts.js"></script></head><body><div>
+    </style><title>Scalafix - a Scala rule tool</title><script src="scripts.js"></script></head><body><div>
 
-<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafix-aScalarewritetool" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafix - a Scala rewrite tool<a class=" scalatex-site-Styles-headerLink" href="#Scalafix-aScalarewritetool" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">0.5.0-M8</h2></div><div class=" scalatex-site-Styles-content">
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafix-aScalaruletool" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafix - a Scala rule tool<a class=" scalatex-site-Styles-headerLink" href="#Scalafix-aScalaruletool" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">0.5.0-M8</h2></div><div class=" scalatex-site-Styles-content">
   
 
 <p>
@@ -97,7 +97,7 @@ span.hljs-tag, span.hljs-symbol{
     but it is not a priority.
 </p>
   <h1 id="sbt-scalafix" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#sbt-scalafix" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>sbt-scalafix</h1>
-    The sbt-plugin is the recommended integration for semantic rewrites.
+    The sbt-plugin is the recommended integration for semantic rules.
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// ===&gt; project/plugins.sbt
 addSbtPlugin(&quot;ch.epfl.scala&quot; % &quot;sbt-scalafix&quot; % &quot;0.5.0-M8&quot;)
@@ -113,14 +113,14 @@ scalacOptions := List(...)                    // keep unchanged
 scalacOptions ++= scalafixScalacOptions.value // add this line
 
 // ===&gt; sbt shell (example usage)
-&gt; scalafix                               // Run .scalafix.conf rewrites
-&gt; scalafix RemoveUnusedImports           // Run specific rewrite
-&gt; myProject/scalafix RemoveUnusedImports // Run rewrite in one project only
-&gt; test:scalafix RemoveUnusedImports      // Run rewrite in single configuration
+&gt; scalafix                               // Run .scalafix.conf rules
+&gt; scalafix RemoveUnusedImports           // Run specific rule
+&gt; myProject/scalafix RemoveUnusedImports // Run rule in one project only
+&gt; test:scalafix RemoveUnusedImports      // Run rule in single configuration
 &gt; scalafix ExplicitR&lt;TAB&gt;                // use tab completion
 &gt; scalafix replace:com.foobar/com.buzbaz // refactor (experimental)
-&gt; scalafix file:rewrites/MyRewrite.scala // run local custom rewrite
-&gt; scalafix github:org/repo/v1            // run library migration rewrite
+&gt; scalafix file:rules/MyRule.scala       // run local custom rule
+&gt; scalafix github:org/repo/v1            // run library migration rule
 </code></pre>
     <h2 id="Verifysbtinstallation" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Verifysbtinstallation" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Verify sbt installation</h2>
       To verify the installation, check that the scalacOptions include -Xplugin-require:semanticdb
@@ -128,6 +128,8 @@ scalacOptions ++= scalafixScalacOptions.value // add this line
 [info] * -Yrangepos                  // required
 [info] * -Xplugin-require:semanticdb // recommended
 [info] * -P:semanticdb:sourceroot:/* // recommended
+&gt; show libraryDependencies
+[info] * org.scalameta:semanticdb-scalac:2.0.0-RC2:plugin-&gt;default(compile)
 </code></pre>
     <h2 id="scalafix-sbt-example" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scalafix-sbt-example" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scalafix-sbt-example</h2>
       For a minimal working example usage of sbt-scalafix, see the
@@ -151,15 +153,15 @@ git diff // should produce a diff
             <th>
               Description</th></tr></thead>
         <tbody>
-          <tr><td><code>scalafix &lt;rewrite&gt;..</code></td><td><code>Unit</code></td><td>
+          <tr><td><code>scalafix &lt;rule&gt;..</code></td><td><code>Unit</code></td><td>
             Run scalafix on project sources.
-            See <a href="#Rewrites">Rewrites</a> or use tab completion to explore
-            supported rewrites.</td></tr>
-          <tr><td><code>sbtfix &lt;rewrite&gt;..</code></td><td><code>Unit</code></td><td>
+            See <a href="#Rules">Rules</a> or use tab completion to explore
+            supported rules.</td></tr>
+          <tr><td><code>sbtfix &lt;rule&gt;..</code></td><td><code>Unit</code></td><td>
             Run scalafix on the build sources, <code>*.sbt</code> and
             <code>project/*</code>.
             <b>Note. </b> Requires <a href="#semanticdb-sbt">semanticdb-sbt</a> enabled globally
-            for semantic rewrites.</td></tr>
+            for semantic rules.</td></tr>
           <tr><td><code>scalafixEnabled</code></td><td><code>Boolean</code></td><td>
             True by default.
             If false, then sbt-scalafix will not enable the
@@ -198,7 +200,7 @@ sbtfixSettings // enable semanticdb-sbt for sbt metabuilds.
       Please report back on your experience.
 
   <h1 id="scalafix-core" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scalafix-core" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scalafix-core</h1>
-    Scalafix can be used as a library to run custom rewrites.
+    Scalafix can be used as a library to run custom rules.
     <pre><code class="scala scalatex-site-Styles-highlightMe">// ===&gt; build.sbt
 libraryDependencies += &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M8&quot;
 // (optional) Scala.js is also supported
@@ -209,27 +211,19 @@ libraryDependencies += &quot;ch.epfl.scala&quot; %%% &quot;scalafix-core&quot; %
 
 import scala.meta.Name
 import scalafix.Patch
-import scalafix.Rewrite
-import scalafix.rewrite.RewriteCtx
+import scalafix.Rule
+import scalafix.rule.RuleCtx
 
-object MyRewrite {
-  // Syntactic &quot;lambda-rewrite&quot;
-  val Reverse: Rewrite = Rewrite.syntactic { ctx =&gt;
-    ctx.tree.collect {
-      case tree @ Name(name) =&gt; ctx.replaceTree(tree, name.reverse)
-    }.asPatch
-  }
-  // Syntactic &quot;class-rewrite&quot;
-  case object Uppercase extends Rewrite {
-    override def rewrite(ctx: RewriteCtx): Patch =
+object MyRule {
+  // Syntactic
+  case object Uppercase extends Rule(&quot;Uppercase&quot;) {
+    override def fix(ctx: RuleCtx): Patch =
       ctx.tree.collect {
         case tree @ Name(name) =&gt; ctx.replaceTree(tree, name.toUpperCase)
       }.asPatch
   }
-}</code><a class=" scalatex-site-Styles-headerLink" style="position: absolute;right: 0.5em;top: 0.5em;display: block;font-size: 24px;" href="https://github.com/scalacenter/scalafix/tree/master/readme/src/main/scala/fix/MyRewrite.scala#L0-L22" target="_blank"><i class="fa fa-link "></i></a></pre>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">println(MyRewrite.Reverse(&quot;object Hello { println('world) }&quot;))
-// object olleH { nltnirp('world) }
-println(MyRewrite.Uppercase(&quot;object Hello { println('world) }&quot;))
+}</code><a class=" scalatex-site-Styles-headerLink" style="position: absolute;right: 0.5em;top: 0.5em;display: block;font-size: 24px;" href="https://github.com/scalacenter/scalafix/tree/master/readme/src/main/scala/fix/MyRule.scala#L0-L16" target="_blank"><i class="fa fa-link "></i></a></pre>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">println(MyRule.Uppercase(&quot;object Hello { println('world) }&quot;))
 // object HELLO { PRINTLN('world) }</code></pre>
     The semantic API requires a more complicated setup. Please
     use <a href="#scalacenter/scalafix.g8">scalacenter/scalafix.g8</a>.
@@ -254,7 +248,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M8+8-7eff8df5
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-M8+25-f62e68df
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -271,13 +265,13 @@ Usage: scalafix [options] [&lt;file&gt;...]
   --sourceroot  &lt;/foo/myproject&gt;
         Absolute path passed to semanticdb with -P:semanticdb:sourceroot:&lt;path&gt;. Relative filenames persisted in the Semantic DB are absolutized by the sourceroot. Defaults to current working directory if not provided.
   --classpath  &lt;entry1.jar:entry2.jar:target/scala-2.12/classes&gt;
-        java.io.File.pathSeparator separated list of directories or jars containing '.semanticdb' files. The 'semanticdb' files are emitted by the semanticdb-scalac compiler plugin and are necessary for semantic rewrites like ExplicitReturnTypes to function.
+        java.io.File.pathSeparator separated list of directories or jars containing '.semanticdb' files. The 'semanticdb' files are emitted by the semanticdb-scalac compiler plugin and are necessary for semantic rules like ExplicitResultTypes to function.
   --classpath-auto-roots  &lt;target:project/target&gt;
         Automatically infer --classpath starting from these directories. Ignored if --classpath is provided.
   --no-strict-semanticdb  
         Disable validation when loading semanticdb files.
-  --rewrites | -r  &lt;ProcedureSyntax OR file:LocalFile.scala OR scala:full.Name OR https://gist.com/.../Rewrite.scala&gt;
-        Rewrite rules to run.
+  --rules | -r  &lt;ProcedureSyntax OR file:LocalFile.scala OR scala:full.Name OR https://gist.com/.../Rule.scala&gt;
+        Rule rules to run.
   --stdout  
         If set, print fix to stdout instead of writing to file.
   --test  
@@ -305,28 +299,28 @@ Usage: scalafix [options] [&lt;file&gt;...]
         Don't use fancy progress bar.
   --project-id  &lt;value&gt;
         String ID to prefix reported messages with
-Available rewrites: DottyKeywords, NoValInForComprehension, RemoveXmlLiterals, VolatileLazyVal, ProcedureSyntax, ExplicitUnit, DottyVolatileLazyVal, DottyVarArgPattern, Sbt1, ExplicitReturnTypes, RemoveUnusedImports, NoAutoTupling
+Available rules: DottyKeywords, NoValInForComprehension, RemoveXmlLiterals, VolatileLazyVal, ProcedureSyntax, ExplicitUnit, DottyVolatileLazyVal, DottyVarArgPattern, Sbt1, ExplicitResultTypes, ExplicitReturnTypes, RemoveUnusedImports, NoAutoTupling
 
 NOTE. The command line tool is mostly intended to be invoked programmatically
 from build-tool integrations such as sbt-scalafix. The necessary fixture to run
-semantic rewrites is tricky to setup manually.
+semantic rules is tricky to setup manually.
 
 Scalafix chooses which files to fix according to the following rules:
-- scalafix &lt;directory&gt; &lt;rewrite&gt; finds *.scala files in &lt;directory&gt;
-- when &lt;rewrite&gt; is semantic
+- scalafix &lt;directory&gt; &lt;rule&gt; finds *.scala files in &lt;directory&gt;
+- when &lt;rule&gt; is semantic
   - if --classpath and --sourceroot are provided, then those are used to find .semanticdb files
   - otherwise, Scalafix will automatically look for META-INF/semanticdb directories from the
     current working directory.
 
 Examples (semantic):
-  $ scalafix # automatically finds .semanticdb files and runs rewrite configured in .scalafix.conf.
+  $ scalafix # automatically finds .semanticdb files and runs rule configured in .scalafix.conf.
   $ scalafix &lt;directory&gt; # same as above except only run on files in &lt;directory&gt;
-  $ scalafix --rewrites RemoveUnusedImports # same as above but run RemoveUnusedImports.
+  $ scalafix --rules RemoveUnusedImports # same as above but run RemoveUnusedImports.
   $ scalafix --classpath &lt;foo.jar:target/classes&gt; # explicitly pass classpath, --sourceroot is cwd.
   $ scalafix --classpath &lt;foo.jar:target/classes&gt; --sourceroot &lt;directory&gt;
   $ cat .scalafix.conf
-  rewrites = [ProcedureSyntax]
-  $ scalafix Code.scala # Same as --rewrites ProcedureSyntax
+  rules = [ProcedureSyntax]
+  $ scalafix Code.scala # Same as --rules ProcedureSyntax
 
 Exit status codes:
  Ok=0
@@ -351,29 +345,32 @@ Exit status codes:
     your project.
 </p>
   <h1 id="rewrites" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#rewrites" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>rewrites</h1>
-    You can either run a pre-made that comes with scalafix or a custom rewrite
+    The &quot;rewrites&quot; section has been renamed to &quot;<a href="#rules">rules</a>&quot;.
+
+  <h1 id="rules" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#rules" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>rules</h1>
+    You can either run a pre-made that comes with scalafix or a custom rule
     that you write yourself.
 
-    <h2 id="Pre-maderewrites" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Pre-maderewrites" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Pre-made rewrites</h2>
-      Available rewrites are listed in <a href="#Rewrites">Rewrites</a>.
+    <h2 id="Pre-maderules" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Pre-maderules" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Pre-made rules</h2>
+      Available rules are listed in <a href="#Rules">Rules</a>.
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">rewrites = [ProcedureSyntax] # No rewrites are run if empty.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">rules = [ProcedureSyntax] # No rules are run if empty.
 </code></pre>
-    <h2 id="Customrewrites" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Customrewrites" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Custom rewrites</h2>
-      Scalafix supports loading rewrites from a few different
+    <h2 id="Customrules" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Customrules" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Custom rules</h2>
+      Scalafix supports loading rules from a few different
       URI protocols.
 
       <h3 id="scala:" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scala:" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scala:</h3>
-        If a rewrites is on the classpath, you can classload it with the
+        If a rules is on the classpath, you can classload it with the
         <code>scala:</code> protocol.
-        <pre><code class="scala scalatex-site-Styles-highlightMe">rewrite = &quot;scala:scalafix.internal.rewrite.ProcedureSyntax&quot;
+        <pre><code class="scala scalatex-site-Styles-highlightMe">rule = &quot;scala:scalafix.internal.rule.ProcedureSyntax&quot;
 </code></pre>
       <h3 id="github:" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#github:" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>github:</h3>
-        If a rewrite is written in a single file and you want a short syntax,
-        you can use the <code>github:</code> protocol for sharing your rewrite
+        If a rule is written in a single file and you want a short syntax,
+        you can use the <code>github:</code> protocol for sharing your rule
 
-        <pre><code class="scala scalatex-site-Styles-highlightMe">rewrite = &quot;github:typelevel/cats/v1.0.0&quot;
-// expands into https://raw.githubusercontent.com/typelevel/cats/master/scalafix/rewrites/src/main/scala/fix/Cats_v1_0_0.scala
+        <pre><code class="scala scalatex-site-Styles-highlightMe">rule = &quot;github:typelevel/cats/v1.0.0&quot;
+// expands into https://raw.githubusercontent.com/typelevel/cats/master/scalafix/rules/src/main/scala/fix/Cats_v1_0_0.scala
 </code></pre>
       <h3 id="replace:" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#replace:" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>replace:</h3>
 
@@ -383,26 +380,26 @@ Exit status codes:
         Note, does not move definitions like &quot;Move&quot; does in an IDE. This
         only moves use-sites.
 
-        <pre><code class="scala scalatex-site-Styles-highlightMe">rewrite = &quot;replace:com.company.App/io.company.App&quot;
+        <pre><code class="scala scalatex-site-Styles-highlightMe">rule = &quot;replace:com.company.App/io.company.App&quot;
 // From sbt shell: &gt; scalafix replace:from/to
 </code></pre>
         To rename a method
 
-        <pre><code class="scala scalatex-site-Styles-highlightMe">rewrite = &quot;replace:com.company.App.start/init&quot;
+        <pre><code class="scala scalatex-site-Styles-highlightMe">rule = &quot;replace:com.company.App.start/init&quot;
 </code></pre>
       <h3 id="file:" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#file:" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>file:</h3>
-        If a rewrites is written in a single file on disk, you can load it
+        If a rules is written in a single file on disk, you can load it
         with the <code>file:</code> protocol.
-        <pre><code class="scala scalatex-site-Styles-highlightMe">rewrite = &quot;file:readme/MyRewrite.scala&quot; // from local file
+        <pre><code class="scala scalatex-site-Styles-highlightMe">rule = &quot;file:readme/MyRule.scala&quot; // from local file
 </code></pre>
       <h3 id="http:" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#http:" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>http:</h3>
-        If a rewrite is written in a single source file on the internet,
+        If a rule is written in a single source file on the internet,
         you can load it with the <code>https:</code> or <code>http:</code> protocol
-        <pre><code class="scala scalatex-site-Styles-highlightMe">rewrite = &quot;https://gist.githubusercontent.com/olafurpg/fc6f43a695ac996bd02000f45ed02e63/raw/dfce7784d61dffda183a582b9a1750399c2c465b/ExampleRewrite.scala&quot;
+        <pre><code class="scala scalatex-site-Styles-highlightMe">rule = &quot;https://gist.githubusercontent.com/olafurpg/fc6f43a695ac996bd02000f45ed02e63/raw/f5fe47495c9b6e3ce0960b766ffa75be6d6768b2/DummyRule.scala&quot;
 </code></pre>
   <h1 id="lint" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#lint" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>lint</h1>
     Override the default severity level of a <a href="#LintMessage">LintMessage</a> with <code>lint</code>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">// Assuming 'Foo' is a rewrite and 'warningID'/'errorID' are LintCategory IDs.
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Assuming 'Foo' is a rule and 'warningID'/'errorID' are LintCategory IDs.
 lint.error = [ Foo.warningID ] // promote Foo.warnigID to an error
 lint.warning = [ Foo.errorID ] // demote Foo.errorID to a warning
 lint.info = [ Foo.errorID ] // demote Foo.errorID to info
@@ -410,7 +407,7 @@ lint.ignore = [ Foo.errorID ] // don't report Foo.errorID
 lint.explain = true // print out detailed explanation for lint messages.
 </code></pre>
   <h1 id="patches" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#patches" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>patches</h1>
-    For simple use-cases, it's possible to write custom rewrites directly in
+    For simple use-cases, it's possible to write custom rules directly in
     .scalafix.conf.
     <pre><code class="scala scalatex-site-Styles-highlightMe">patches.removeGlobalImports = [
   &quot;scala.collection.mutable&quot; // scala.meta.Importee
@@ -425,24 +422,24 @@ patches.replaceSymbols = [
 // Helper to see which symbols appear in your source files
 debug.printSymbols = true</code></pre>
     For more advanced use-cases, I recommend you use see
-    <a href="#Creatingyourownrewrite">Creating your own rewrite</a>.
+    <a href="#Creatingyourownrule">Creating your own rule</a>.
 
 
 
   
 
-<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Rewrites" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Rewrites<a class=" scalatex-site-Styles-headerLink" href="#Rewrites" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Rules" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Rules<a class=" scalatex-site-Styles-headerLink" href="#Rules" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
   <p>
-    Scalafix comes with a few rewrites out-of-the-box.
-    These rewrites have been chosen to meet the long-term goal of scalafix to
+    Scalafix comes with a few rules out-of-the-box.
+    These rules have been chosen to meet the long-term goal of scalafix to
     <a href="http://scala-lang.org/blog/2016/05/30/scala-center-advisory-board.html#the-first-meeting">clarify the Scala to Dotty migration path</a>.
-    To create custom rewrites, see <a href="#scalafix-core">scalafix-core</a>.
+    To create custom rules, see <a href="#scalafix-core">scalafix-core</a>.
 </p>
-  <h1 id="ExplicitReturnTypes" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#ExplicitReturnTypes" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>ExplicitReturnTypes</h1>
+  <h1 id="ExplicitResultTypes" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#ExplicitResultTypes" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>ExplicitResultTypes</h1>
     <p><b>Experimental <i class="fa fa-warning"></i></b></p>
     Dotty requires implicit <code>val</code>s and <code>def</code>s to explicitly annotate
     return types.
-    The ExplicitReturnTypes rewrite inserts the inferred type from the
+    The ExplicitResultTypes rule inserts the inferred type from the
     compiler for implicit definitions that are missing an explicit return type.
     For example,
 
@@ -453,26 +450,27 @@ implicit val tt: TypedType[R] = liftedType
 </code></pre>
     <ul>
       <li>
-        <b>Note. </b>. This rewrite inserts fully qualified names, even if the short name
+        <b>Note. </b>. This rule inserts fully qualified names, even if the short name
         is available in scope. Track <a href="https://github.com/scalacenter/scalafix/issues/169">#169</a> for updates on making the
-        rewrite insert shorter names.</li>
+        rule insert shorter names.</li>
       <li>
         Inserts type annotations only for implicit definitions by default. To configure the
-        rewrite to run on non-implicit definitions
+        rule to run on non-implicit definitions
         <pre><code class="scala scalatex-site-Styles-highlightMe">explicitReturnTypes.memberKind = [Val, Def, Var]
 explicitReturnTypes.memberVisibility = [Public, Protected]
 // Experimental, shorten fully qualified names and insert missing imports
 // By default, names are fully qualified and prefixed with _root_.
-unsafeShortenNames = true // false by default.
+unsafeShortenNames = true // false by default.</code></pre></li></ul>
+  <h1 id="ExplicitReturnTypes" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#ExplicitReturnTypes" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>ExplicitReturnTypes</h1>
+    This rule has been renamed into <a href="#ExplicitResultTypes">ExplicitResultTypes</a>
 
-</code></pre></li></ul>
   <h1 id="RemoveUnusedImports" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RemoveUnusedImports" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RemoveUnusedImports</h1>
-    This rewrite acts upon &quot;Unused import&quot; warnings emitted by the Scala compiler.
+    This rule acts upon &quot;Unused import&quot; warnings emitted by the Scala compiler.
     See <a href="https://github.com/slick/slick/pull/1736">slick/slick/pulls#1736</a>
     for an example diff from running <code>sbt &quot;scalafix RemoveUnusedImports&quot;</code>.
 
     <p>
-      To use this rewrite:
+      To use this rule:
       <ul>
         <li>
           enable <code>-Ywarn-unused-import</code></li>
@@ -492,7 +490,7 @@ import scala.collection.immutable
 object Foo { immutable.Seq.empty[Int] }
 </code></pre>
     <p>
-      <b>Note. </b>. This rewrite does a best-effort at preserving original formatting.
+      <b>Note. </b>. This rule does a best-effort at preserving original formatting.
       In some cases, the rewritten code may be formatted weirdly
 
       <pre><code class="scala scalatex-site-Styles-highlightMe">// before
@@ -505,10 +503,10 @@ import scala.concurrent.
 
   TimeoutException
 </code></pre>
-      It's recommended to use a code formatter after running this rewrite.
+      It's recommended to use a code formatter after running this rule.
 </p>
   <h1 id="RemoveXmlLiterals" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RemoveXmlLiterals" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RemoveXmlLiterals</h1>
-    This rewrites replaces XML literals with a <code>xml&quot;&quot;</code> interpolator
+    This rules replaces XML literals with a <code>xml&quot;&quot;</code> interpolator
     from <a href="https://github.com/densh/scala-xml-quote">scala-xml-quote</a>
     project.
 
@@ -593,7 +591,7 @@ case List(1, 2, xs : _*)
       Adds explicit tuples around argument lists where auto-tupling is occurring.
 </p>
     <p>
-      To use this rewrite:
+      To use this rule:
       <ul>
         <li>
           enable <code>-Ywarn-adapted-args</code> (note, -Yno-adapted-args will fail
@@ -643,7 +641,7 @@ for {
   <h1 id="Sbt1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Sbt1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Sbt1</h1>
     <p><b>Experimental <i class="fa fa-warning"></i></b></p>
     <p>
-      To use this rewrite:
+      To use this rule:
       <ul>
         <li>
           Install <a href="#semanticdb-sbt">semanticdb-sbt</a></li>
@@ -654,70 +652,70 @@ x &lt;+= (y in Compile)
 // after
 x += (y in Compile).value
 </code></pre>
-    This rewrite currently handles many basic cases but may produce incorrect
+    This rule currently handles many basic cases but may produce incorrect
     output in more advanced cases. Please report back your experience.
 
-  <h1 id="Plannedrewrites..." style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Plannedrewrites..." style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Planned rewrites...</h1>
-    See <a href="https://github.com/scalacenter/scalafix/labels/rewrite">here</a>.
+  <h1 id="Plannedrules..." style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Plannedrules..." style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Planned rules...</h1>
+    See <a href="https://github.com/scalacenter/scalafix/labels/rule">here</a>.
 
   
 
-<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Creatingyourownrewrite" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Creating your own rewrite<a class=" scalatex-site-Styles-headerLink" href="#Creatingyourownrewrite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Creatingyourownrule" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Creating your own rule<a class=" scalatex-site-Styles-headerLink" href="#Creatingyourownrule" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
   <p>
-    It is possible to implement custom rewrites with Scalafix.
-    Depending on what your rewrite does, it may be a lot of work or very
+    It is possible to implement custom rules with Scalafix.
+    Depending on what your rule does, it may be a lot of work or very
     little work. Don't hestitate to get an estimate on <a href="https://gitter.im/scalacenter/scalafix?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://camo.githubusercontent.com/382ebf95f5b4df9275ac203229928db8c8fd5c50/68747470733a2f2f6261646765732e6769747465722e696d2f6f6c6166757270672f7363616c61666d742e737667" alt="Join the chat at https://gitter.im/scalacenter/scalafix" data-canonical-src="https://badges.gitter.im/scalacenter/scalafix.svg" style="max-width:100%;"></a> for
-    how complicated it would be to implement your rewrite.
+    how complicated it would be to implement your rule.
 </p>
   <h1 id="Beforeyoubegin" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Beforeyoubegin" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Before you begin</h1>
-    Before you dive right into the code of your rewrite, it might be
+    Before you dive right into the code of your rule, it might be
     good to answer the following questions first.
 
     <h2 id="Whatdiffdoyouwanttomake?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Whatdiffdoyouwanttomake?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>What diff do you want to make?</h2>
       Scalafix is a tool to automatically produce diffs.
-      Before implementing a rewrite, it's good to manually migrate/refactor a
+      Before implementing a rule, it's good to manually migrate/refactor a
       few examples first. Manually refactoring code is helpful
-      to estimate how complicated the rewrite is.
+      to estimate how complicated the rule is.
 
     <h2 id="Istheexpectedoutputunambiguous?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Istheexpectedoutputunambiguous?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Is the expected output unambiguous?</h2>
-      Does the rewrite require manual intervention or do you always know what
-      output the rewrite should produce? Scalafix currently does not yet support
+      Does the rule require manual intervention or do you always know what
+      output the rule should produce? Scalafix currently does not yet support
       interactive refactoring. However, Scalafix has support for configuration,
-      which makes it possible to leave some choice to the user on how the rewrite
+      which makes it possible to leave some choice to the user on how the rule
       should behave.
 
-    <h2 id="Whowilluseyourrewrite?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Whowilluseyourrewrite?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Who will use your rewrite?</h2>
-      The target audience/users of your rewrite can impact the implementation the
-      rewrite. If you are the only end-user of the rewrite, then you can maybe
+    <h2 id="Whowilluseyourrule?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Whowilluseyourrule?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Who will use your rule?</h2>
+      The target audience/users of your rule can impact the implementation the
+      rule. If you are the only end-user of the rule, then you can maybe
       take shortcuts and worry less about rare corner cases that may be easier to fix
-      manually. If your rewrite is intended to be used by the entire Scala
+      manually. If your rule is intended to be used by the entire Scala
       community, then you might want to be more careful with corner cases.
 
-    <h2 id="Whatcodewillyourrewritefix?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Whatcodewillyourrewritefix?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>What code will your rewrite fix?</h2>
-      Is your rewrite specific to a particular codebase? Or is the rewrite intended
-      to be used on codebases that you don't have access to? If your rewrite is
-      specific to one codebase, then it's easier to validate if your rewrite
+    <h2 id="Whatcodewillyourrulefix?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Whatcodewillyourrulefix?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>What code will your rule fix?</h2>
+      Is your rule specific to a particular codebase? Or is the rule intended
+      to be used on codebases that you don't have access to? If your rule is
+      specific to one codebase, then it's easier to validate if your rule
       is ready. You may not even need tests, since your codebase is your only test.
-      If your rewrite is intended to be used in any random codebase, you may
+      If your rule is intended to be used in any random codebase, you may
       want to have tests and put more effort into handling corner cases.
-      In general, the smaller the target domain of your rewrite, the easier it
-      is to implement a rewrite.
+      In general, the smaller the target domain of your rule, the easier it
+      is to implement a rule.
 
-    <h2 id="Howoftenwillyourrewriterun?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Howoftenwillyourrewriterun?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>How often will your rewrite run?</h2>
-      Are you writing a one-off migration script or will your rewrite run on
-      every pull request? A rewrite that runs on every pull request should ideally
+    <h2 id="Howoftenwillyourrulerun?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Howoftenwillyourrulerun?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>How often will your rule run?</h2>
+      Are you writing a one-off migration script or will your rule run on
+      every pull request? A rule that runs on every pull request should ideally
       have some unit tests and be documented so that other people can help maintain
-      the rewrite.
+      the rule.
 
   <h1 id="scalacenter/scalafix.g8" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scalacenter/scalafix.g8" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scalacenter/scalafix.g8</h1>
     <p>
       Run the following commands to generate a skeleton project
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">cd reponame // The project you want to implement rewrites for.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">cd reponame // The project you want to implement rules for.
 
-// --rewrite= should ideally match the GitHub repo name, to make
+// --rule= should ideally match the GitHub repo name, to make
 // it possible for users to run `scalafix &quot;github:org/reponame/v1.0&quot;`
-sbt new scalacenter/scalafix.g8 --rewrite=&quot;reponame&quot; --version=&quot;v1.0&quot;
+sbt new scalacenter/scalafix.g8 --rule=&quot;reponame&quot; --version=&quot;v1.0&quot;
 cd scalafix
 sbt tests/test</code></pre></p>
     <p>
@@ -726,21 +724,21 @@ sbt tests/test</code></pre></p>
       The tests are written using <a href="#scalafix-testkit">scalafix-testkit</a>.
 </p>
     <h2 id="scalafix-testkit" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scalafix-testkit" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scalafix-testkit</h2>
-      Scalafix-testkit is a module to help you write/run/debug/test scalafix rewrites.
+      Scalafix-testkit is a module to help you write/run/debug/test scalafix rules.
       The scalacenter/scalafix.g8 template boilerplate to use scalafix-testkit.
       The anatomy of a scalafix-testkit project is like this
 
       <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix
-├── rewrites // rewrite implementations
-├── input    // code that runs through rewrite
-├── output   // expected output from running input on rewrites
+├── rules    // rule implementations
+├── input    // code that runs through rule
+├── output   // expected output from running input on rules
 └── tests    // tiny project where unit tests run
 </code></pre>
       The key features of scalafix-testkit are
 
       <ul>
         <li>
-          Input code to rewrites and expected output is written in plain .scala files,
+          Input code to rules and expected output is written in plain .scala files,
           with full IDE support.</li>
         <li>
           Input and expected output files are kept in two separate sbt projects.
@@ -751,37 +749,37 @@ sbt tests/test</code></pre></p>
           the file.</li>
         <li>
           Test failures are reported as unified diffs from the obtained output
-          of the rewrite and the expected output in the <code>output</code> project.</li>
+          of the rule and the expected output in the <code>output</code> project.</li>
         <li>
           Assert that a <a href="#LintMessage">LintMessage</a> is expected at a particular line
           by suffixing the line with the comment <code>// scalafix: &lt;LintCategory&gt;</code>.
           The test fails if there exist reported lint messages that have no
           associated assertion in the input file.
 </li></ul>
-  <h1 id="Examplerewrites" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Examplerewrites" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Example rewrites</h1>
-    The Scalafix repository contains several example rewrites and tests,
-    see <a href="https://github.com/scalacenter/scalafix/tree/master/scalafix-core/src/main/scala/scalafix/rewrite">here</a>.
-    These examples may serve as inspiration for your rewrite.
+  <h1 id="Examplerules" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Examplerules" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Example rules</h1>
+    The Scalafix repository contains several example rules and tests,
+    see <a href="https://github.com/scalacenter/scalafix/tree/master/scalafix-core/src/main/scala/scalafix/rule">here</a>.
+    These examples may serve as inspiration for your rule.
 
   <h1 id="Vocabulary" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Vocabulary" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Vocabulary</h1>
     The following sections explain useful vocabulary when working with Scalafix.
 
-    <h2 id="Rewrite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Rewrite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Rewrite</h2>
-      A rewrite is a small program/function that can produce diffs.
-      To implement a rewrite, you extend the
-      <a href="https://github.com/scalacenter/scalafix/blob/master/scalafix-core/src/main/scala/scalafix/rewrite/Rewrite.scala">Rewrite</a>
+    <h2 id="Rule" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Rule" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Rule</h2>
+      A rule is a small program/function that can produce diffs.
+      To implement a rule, you extend the
+      <a href="https://github.com/scalacenter/scalafix/blob/master/scalafix-core/src/main/scala/scalafix/rule/Rule.scala">Rule</a>
       class.
-      To run a rewrite, users execute <code>scalafix --rewrites MyRewrite</code>.
-      Multiple rewrites can be composed into a single rewrite.
+      To run a rule, users execute <code>scalafix --rules MyRule</code>.
+      Multiple rules can be composed into a single rule.
       For example, the migration for Dotty may involve <a href="#ProcedureSyntax">ProcedureSyntax</a>,
       <a href="#ExplicitUnit">ExplicitUnit</a>, <a href="#DottyVarArgPattern">DottyVarArgPattern</a>, <a href="#ExplicitReturnTypes">ExplicitReturnTypes</a>
-      and a few other rewrites. It is possible to combine all of those rewrites
-      into a single <code>Dotty</code> rewrite so users can run
-      <code>scalafix --rewrites Dotty</code>.
+      and a few other rules. It is possible to combine all of those rules
+      into a single <code>Dotty</code> rule so users can run
+      <code>scalafix --rules Dotty</code>.
 
-    <h2 id="RewriteCtx" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RewriteCtx" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RewriteCtx</h2>
-      A rewrite context contains data structures and utilities to rewrite a single
-      source file. For example, the rewrite context contains the parsed <a href="#Tree">Tree</a>,
+    <h2 id="RuleCtx" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RuleCtx" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RuleCtx</h2>
+      A rule context contains data structures and utilities to rule a single
+      source file. For example, the rule context contains the parsed <a href="#Tree">Tree</a>,
       <a href="#Tokens">Tokens</a>, lookup tables for matching parentheses and more.
 
     <h2 id="Patch" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Patch" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Patch</h2>
@@ -841,14 +839,14 @@ sbt tests/test</code></pre></p>
   /** Add the string toAdd to the first token of tree. Does not remove tokens. */
   def addLeft(tree: Tree, toAdd: String): Patch
 
-  // Semantic patches below, available to rewrites that &quot;extends SemanticRewrite&quot;
+  // Semantic patches below, available to rules that &quot;extends SemanticRule&quot;
 
   /** Report a linter message.
     *
     * To construct a LintMessage, start by creating a lint category. Example:
     *
     * {{{
-    *   class MyLinter extends Rewrite {
+    *   class MyLinter extends Rule {
     *     val divisionByZero = scalafix.LintCategory.error(&quot;Division by zero!&quot;)
     *     val divisionTree: scala.meta.Tree = ???
     *     PatchOps.lint(divisionByZero.at(divisionTree.pos))
@@ -856,7 +854,7 @@ sbt tests/test</code></pre></p>
     * }}}
     *
     * Each LintCategory is assigned a unique identifier, which is formatted
-    * as &quot;RewriteName.categoryID&quot;. The divisionByZero example would have the
+    * as &quot;RuleName.categoryID&quot;. The divisionByZero example would have the
     * id &quot;MyLinter.divisionByZero&quot;. A LintCategory has a default severity level
     * (warning, error) that the user can override in .scalafix.conf.
     */
@@ -915,12 +913,12 @@ sbt tests/test</code></pre></p>
       seems simple then don't hesitate to ask on <a href="https://gitter.im/scalacenter/scalafix?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://camo.githubusercontent.com/382ebf95f5b4df9275ac203229928db8c8fd5c50/68747470733a2f2f6261646765732e6769747465722e696d2f6f6c6166757270672f7363616c61666d742e737667" alt="Join the chat at https://gitter.im/scalacenter/scalafix" data-canonical-src="https://badges.gitter.im/scalacenter/scalafix.svg" style="max-width:100%;"></a>.
 
     <h2 id="LintMessage" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#LintMessage" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>LintMessage</h2>
-      Rewrites are able to emit &quot;lint messages&quot; with info/warn/error severity
+      Rules are able to emit &quot;lint messages&quot; with info/warn/error severity
       using <code>ctx.lint(lintCategory.at(String/Position)): Patch</code>.
       To report a lint message, first create a <a href="#LintCategory">LintCategory</a> and then
       report it as a <code>Patch</code>
       <pre><code class="scala scalatex-site-Styles-highlightMe">val divisionByZero = LintCategory.error(&quot;Division by zero is unsafe!&quot;)
-def rewrite(ctx: RewriteCtx): Patch = {
+def rule(ctx: RuleCtx): Patch = {
   val tree: Tree = // ...
   ctx.lint(divisionByZero.at(tree.pos))
 }
@@ -933,13 +931,13 @@ def rewrite(ctx: RewriteCtx): Patch = {
 
     <h2 id="Scalameta" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Scalameta" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Scalameta</h2>
       Scalafix uses <a href="http://scalameta.org/">Scalameta</a> to implement
-      rewrites.
+      rules.
       Scalameta is a clean-room implementation of a metaprogramming toolkit for Scala.
       This means it's not necessary to have experience with Scala compiler internals
-      to implement Scalafix rewrites.
+      to implement Scalafix rules.
       In fact, Scalafix doesn't even depend on the Scala compiler.
       Since Scalafix is not tied so a single compiler, this means that Scalafix
-      rewrites in theory can work with any Scala compiler, including <a href="http://dotty.epfl.ch/">Dotty</a> and
+      rules in theory can work with any Scala compiler, including <a href="http://dotty.epfl.ch/">Dotty</a> and
       IntelliJ Scala Plugin.
 
     <h2 id="Semanticdb" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Semanticdb" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Semanticdb</h2>
@@ -972,41 +970,48 @@ def rewrite(ctx: RewriteCtx): Patch = {
       for a more general definition.
 
     <h2 id="Syntactic" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Syntactic" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Syntactic</h2>
-      A <a href="#Rewrite">Rewrite</a> is &quot;syntactic&quot; when it does not require information
+      A <a href="#Rule">Rule</a> is &quot;syntactic&quot; when it does not require information
       from type-checking such as resolved names (<code>println</code> =&gt; <code>scala.Predef.println</code>),
       types or terms, or inferred implicit arguments.
-      A syntactic rewrite can use <a href="#Tokens">Tokens</a> and <a href="#Tree">Tree</a>, but
+      A syntactic rule can use <a href="#Tokens">Tokens</a> and <a href="#Tree">Tree</a>, but
       not <a href="#SemanticCtx">SemanticCtx</a>.
 
     <h2 id="Semantic" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Semantic" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Semantic</h2>
-      A <a href="#Rewrite">Rewrite</a> is &quot;semantic&quot; if it requires information from the compiler
+      A <a href="#Rule">Rule</a> is &quot;semantic&quot; if it requires information from the compiler
       such as types, symbols and reported compiler messages.
-      A semantic rewrite can use a <a href="#SemanticCtx">SemanticCtx</a>.
+      A semantic rule can use a <a href="#SemanticCtx">SemanticCtx</a>.
 
     <h2 id="SemanticCtx" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#SemanticCtx" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>SemanticCtx</h2>
-       A SemanticCtx encapsulates a compilation context, providing
-       capabilities to perform semantic operations for <a href="#Semantic">Semantic</a> rewrites.
-       To learn more about SemanticCtx and its associated data structures (Symbol,
-       Denotation, ...), see the
-       <a href="http://scalameta.org/tutorial/#Mirror">Scalameta tutorial</a>.
+      A SemanticCtx encapsulates a compilation context, providing
+      capabilities to perform semantic operations for <a href="#Semantic">Semantic</a> rules.
+      To learn more about SemanticCtx and its associated data structures (Symbol,
+      Denotation, ...), see the
+      <a href="http://scalameta.org/tutorial/#Mirror">Scalameta tutorial</a>.
 
-  <h1 id="Sharingyourrewrite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Sharingyourrewrite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Sharing your rewrite</h1>
+    <h2 id="Rule" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Rule" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Rule</h2>
+      A scalafix &quot;Rule&quot; can report lint messages and provide auto-fix patches
+      to violations of some kind of rule/coding style/convention/breaking change.
+
+    <h2 id="Rewrite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Rewrite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Rewrite</h2>
+      &quot;Rewrite&quot; is the old name for <a href="#Rule">Rule</a>
+
+  <h1 id="Sharingyourrule" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Sharingyourrule" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Sharing your rule</h1>
     <p>
-      You have implemented a rewrite, you have tests, it works,
+      You have implemented a rule, you have tests, it works,
       and now you want to share it with the world. Congrats!
-      There are several ways to share a rewrite if the rewrite is contained in
+      There are several ways to share a rule if the rule is contained in
       a single file and uses no external dependencies,
       <ul>
         <li>
           If you used <a href="#scalacenter/scalafix.g8">scalacenter/scalafix.g8</a> to build your project,
-          push your rewrite to github and tell users to run
+          push your rule to github and tell users to run
           <code>scalafix github:org/$reponame/$version</code>.</li>
         <li>
           otherwise, tell users to use the <a href="#http:">http:</a> protocol,
-          <code>scalafix --rewrites https://gist....</code> where the url
-          points to the plaintext contents of your rewrite.
+          <code>scalafix --rules https://gist....</code> where the url
+          points to the plaintext contents of your rule.
 </li></ul>
-      If your rewrite uses a custom library, then it's a bit tricky
+      If your rule uses a custom library, then it's a bit tricky
       to share it. See <a href="https://github.com/scalacenter/scalafix/issues/201">#201</a> for more updates.</p>
 
   
@@ -1032,7 +1037,7 @@ def rewrite(ctx: RewriteCtx): Patch = {
         <li>
           If you use <a href="#sbt-scalafix">sbt-scalafix</a>, try <a href="#Verifysbtinstallation">Verify sbt installation</a>.</li>
         <li>
-          Make sure that you are running at least one rewrite.</li>
+          Make sure that you are running at least one rule.</li>
         <li>
           Make sure that you are using a supported Scala
           version: 2.11.11, 2.12.3
@@ -1064,10 +1069,10 @@ def rewrite(ctx: RewriteCtx): Patch = {
     <a href="#scalafix-cli">scalafix-cli</a>.</p>
   <ul>
     <li>
-      <code>sbtfix</code> task in <a href="#sbt-scalafix">sbt-scalafix</a> to run rewrites
+      <code>sbtfix</code> task in <a href="#sbt-scalafix">sbt-scalafix</a> to run rules
       on build sources.</li>
     <li>
-      <a href="#Sbt1">Sbt1</a> rewrite to migrate usage of deprecated sbt 0.13 APIs,
+      <a href="#Sbt1">Sbt1</a> rule to migrate usage of deprecated sbt 0.13 APIs,
       by <a href="https://github.com/jvican">@jvican</a>.</li>
     <li>
       Scala.js support for <a href="#scalafix-core">scalafix-core</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
@@ -1076,29 +1081,29 @@ def rewrite(ctx: RewriteCtx): Patch = {
     <li>
       Configurable <a href="#lint">lint</a> reporting.</li>
     <li>
-      <a href="#sbt-scalafix">sbt-scalafix</a> rewrite tab completion.</li>
+      <a href="#sbt-scalafix">sbt-scalafix</a> rule tab completion.</li>
     <li>
       <a href="#scalafix-cli">scalafix-cli</a> <code>--zsh</code> and <code>--bash</code> to generate tab
       completion scripts for zsh and bash.</li>
     <li>
-      <a href="#scalafix-cli">scalafix-cli</a> automatically inferences semantic/syntactic rewrites.
-      This means it's possible to run custom syntactic rewrites from scalafix-cli
+      <a href="#scalafix-cli">scalafix-cli</a> automatically inferences semantic/syntactic rules.
+      This means it's possible to run custom syntactic rules from scalafix-cli
       without passing in <code>--classpath</code>.</li>
     <li>
       <a href="#replace:">replace:</a> to run quick one-off refactorings.
 </li></ul>
-  <h4>New features for rewrite authors
+  <h4>New features for rule authors
     <i class="fa fa-terminal"></i></h4>
   <ul>
     <li>
-      Ability to implement rewrites for sources of sbt builds, including
-      <code>*.sbt</code> files. The API to write sbt rewrites is identical to
-      regular Scala rewrites.</li>
+      Ability to implement rules for sources of sbt builds, including
+      <code>*.sbt</code> files. The API to write sbt rules is identical to
+      regular Scala rules.</li>
     <li>
-      Rewrites can now emit lint messages with <code>ctx.lint</code>, see
+      Rules can now emit lint messages with <code>ctx.lint</code>, see
       <a href="#LintMessage">LintMessage</a>.</li>
     <li>
-      Rewrites can have multiple names with optional deprecation warnings.</li>
+      Rules can have multiple names with optional deprecation warnings.</li>
     <li>
       Thanks to upstream improvements in the
       <a href="http://scalameta.org/tutorial/#SemanticAPI">Scalameta v2.0 Semantic API</a>,
@@ -1123,7 +1128,7 @@ def rewrite(ctx: RewriteCtx): Patch = {
       Previously, sbt-scalafix used synthetic projects which cause problem
       in some multi-module builds. Now, sbt-scalafix uses Coursier instead.</li>
     <li>
-      Improved dynamic compilation of <a href="#Customrewrites">Custom rewrites</a> while running
+      Improved dynamic compilation of <a href="#Customrules">Custom rules</a> while running
       from multi-module sbt builds.</li>
     <li>
       Extension methods now resolve to the correct symbol. For example,
@@ -1154,7 +1159,7 @@ def rewrite(ctx: RewriteCtx): Patch = {
       upgraded to Scalameta 2.0, which has several breaking changes
       in the Tree api.</li>
     <li>
-      The <code>VolatileLazyVal</code> rewrite is now named <a href="#DottyVolatileLazyVal">DottyVolatileLazyVal</a>.
+      The <code>VolatileLazyVal</code> rule is now named <a href="#DottyVolatileLazyVal">DottyVolatileLazyVal</a>.
 </li></ul>
 
   <h1 id="0.4.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.x</h1>
@@ -1165,8 +1170,8 @@ def rewrite(ctx: RewriteCtx): Patch = {
     <li>
       Fixed <a href="https://github.com/scalacenter/scalafix/issues/200">#200</a>, thank you <a href="https://github.com/xuwei-k">@xuwei-k</a> for reporting.</li>
     <li>
-      New section documenting how to implement rewrites, see
-      <a href="#Creatingyourownrewrite">Creating your own rewrite</a>.</li>
+      New section documenting how to implement rules, see
+      <a href="#Creatingyourownrule">Creating your own rule</a>.</li>
     <li>
       In particular, <a href="#scalacenter/scalafix.g8">scalacenter/scalafix.g8</a></li></ul>
 <h2 id="0.4.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.1</h2>
@@ -1175,9 +1180,9 @@ def rewrite(ctx: RewriteCtx): Patch = {
 
   <ul>
     <li>
-      New rewrite <code>NoExtendsApp</code> (removed in v0.5), by <a href="https://github.com/gabro">@gabro</a>.</li>
+      New rule <code>NoExtendsApp</code> (removed in v0.5), by <a href="https://github.com/gabro">@gabro</a>.</li>
     <li>
-      New rewrite <a href="#DottyVarArgPattern">DottyVarArgPattern</a>, by <a href="https://github.com/gosubpl">@gosubpl</a>.</li>
+      New rule <a href="#DottyVarArgPattern">DottyVarArgPattern</a>, by <a href="https://github.com/gosubpl">@gosubpl</a>.</li>
     <li>
       Errors in the <a href="#scalafix-testkit">scalafix-testkit</a> docs have now been fixed, by <a href="https://github.com/taisukeoe">@taisukeoe</a>.</li>
     <li>
@@ -1209,25 +1214,25 @@ def rewrite(ctx: RewriteCtx): Patch = {
 
   <ul>
     <li>
-      New rewrite <a href="#RemoveUnusedImports">RemoveUnusedImports</a>, by <a href="https://github.com/olafurpg">@olafurpg</a>.</li>
+      New rule <a href="#RemoveUnusedImports">RemoveUnusedImports</a>, by <a href="https://github.com/olafurpg">@olafurpg</a>.</li>
     <li>
-      New rewrite <a href="#RemoveXmlLiterals">RemoveXmlLiterals</a>, by <a href="https://github.com/allanrenucci">@allanrenucci</a>.</li>
+      New rule <a href="#RemoveXmlLiterals">RemoveXmlLiterals</a>, by <a href="https://github.com/allanrenucci">@allanrenucci</a>.</li>
     <li>
-      New rewrite <a href="#NoAutoTupling">NoAutoTupling</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
+      New rule <a href="#NoAutoTupling">NoAutoTupling</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
     <li>
-      New rewrite <a href="#ExplicitUnit">ExplicitUnit</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
+      New rule <a href="#ExplicitUnit">ExplicitUnit</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
     <li>
-      New rewrite <a href="#NoValInForComprehension">NoValInForComprehension</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
+      New rule <a href="#NoValInForComprehension">NoValInForComprehension</a>, by <a href="https://github.com/gabro">@gabro</a>.</li>
     <li>
-      New <a href="#github:">github:</a> protocol for loading rewrites, by <a href="https://github.com/gabro">@gabro</a>.</li>
+      New <a href="#github:">github:</a> protocol for loading rules, by <a href="https://github.com/gabro">@gabro</a>.</li>
     <li>
       Improved <a href="#scalafix-testkit">scalafix-testkit</a>, by <a href="https://github.com/olafurpg">@olafurpg</a>.</li>
     <li>
-      Simplified Rewrite API. The public API has shrunk down to
-      four types: <code>Rewrite</code>, <code>Patch</code>, <code>ScalafixConfig</code> and
-      <code>RewriteCtx</code>. The type parameters on <code>Rewrite</code> and <code>RewriteCtx</code>
+      Simplified Rule API. The public API has shrunk down to
+      four types: <code>Rule</code>, <code>Patch</code>, <code>ScalafixConfig</code> and
+      <code>RuleCtx</code>. The type parameters on <code>Rule</code> and <code>RuleCtx</code>
       have been removed. A single <code>import scalafix._</code> is enough get
-      started with rewrites.</li>
+      started with rules.</li>
     <li>
       See the
       <a href="https://github.com/scalameta/scalameta/blob/master/changelog/1.8.0.md">Scalameta Semantic API</a>.
@@ -1239,35 +1244,35 @@ def rewrite(ctx: RewriteCtx): Patch = {
       The <code>scalafix-nsc</code> compiler plugin has been removed in favor of
       the <a href="https://github.com/scalameta/scalameta/blob/master/changelog/1.8.0.md#semantic-db">Scalameta Semantic DB</a>,
       that is emitted by the Scalameta <code>semanticdb-scalac</code> compiler plugin.
-      This change enables Scalafix rewrites to run separately from compilation.
+      This change enables Scalafix rules to run separately from compilation.
       This means that running scalafix will be much faster, since it no longer
       requires creating a custom instance of the Scala compiler and re-typechecking
       an entire project. Scalafix reads all of its inputs from <code>.semanticdb</code>
       files that are created by the semanticdb-scalac compiler plugin during regular compilation.</li>
     <li>
-      The signature of <code>Rewrite.rewrite</code> has been simplified
+      The signature of <code>Rule.rule</code> has been simplified
       <pre><code class="scala scalatex-site-Styles-highlightMe">// before
-def rewrite[T](ctx: RewriteCtx[T]): Seq[Patch]
+def rule[T](ctx: RuleCtx[T]): Seq[Patch]
 // after
-def rewrite(ctx: RewriteCtx): Patch
+def rule(ctx: RuleCtx): Patch
 
 // a Seq[Patch] can be converted into Patch with .asPatch
 Seq[Patch]().asPatch: Patch</code></pre></li>
     <li>
-      <code>RewriteCtx.mirror</code> has been removed. To write semantic rewrites,
+      <code>RuleCtx.mirror</code> has been removed. To write semantic rules,
       accept <code>SemanticCtx</code> as a constructor parameter instead
       <pre><code class="scala scalatex-site-Styles-highlightMe">// before
-case object MySemanticRewrite extends Rewrite {
-  def rewrite[T](ctx: RewriteCtx[T]): Seq[Patch]
+case object MySemanticRule extends Rule {
+  def rule[T](ctx: RuleCtx[T]): Seq[Patch]
 }
 // after
-case class MySemanticRewrite(sctx: SemanticCtx) extends SemanticRewrite(sctx) {
-  def rewrite(ctx: RewriteCtx): Patch
+case class MySemanticRule(sctx: SemanticCtx) extends SemanticRule(sctx) {
+  def rule(ctx: RuleCtx): Patch
 }</code></pre></li>
     <li>
       <code>scalafix.patch.TreePatch.{AddGlobalImport, RemoveGlobalImport, Replace, ...</code>}
       have been made <code>private[scalafix]</code>. Instead, use the provided operations
-      on <code>ctx: RewriteCtx</code>.
+      on <code>ctx: RuleCtx</code>.
 
 
       <pre><code class="scala scalatex-site-Styles-highlightMe">// before
@@ -1279,10 +1284,10 @@ ctx.addGlobalImport(importer&quot;scala.meta._&quot;)
       The motivation for this change was to statically enforce that a <code>SemanticCtx</code>
       is in scope during Patch creation.
       For the full available API of patch operations, see
-      <a href="https://github.com/scalacenter/scalafix/blob/db6152304aaef19c4a8ba4fc77b732264bf52fec/scalafix-core/src/main/scala/scalafix/rewrite/SemanticPatchOps.scala">SemanticPatchOps</a></li>
+      <a href="https://github.com/scalacenter/scalafix/blob/db6152304aaef19c4a8ba4fc77b732264bf52fec/scalafix-core/src/main/scala/scalafix/rule/SemanticPatchOps.scala">SemanticPatchOps</a></li>
     <li>
       The following configuration options have been removed
-      <pre><code class="scala scalatex-site-Styles-highlightMe">imports.removeUnusedImports // replaced by RemoveUnusedImports rewrite.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">imports.removeUnusedImports // replaced by RemoveUnusedImports rule.
 
 // These were wishful thinking, too eagerly merged.
 imports.organizeImports
@@ -1320,7 +1325,7 @@ imports.groupByPrefix</code></pre></li>
     <li>
       New module: <a href="#scalafix-testkit">scalafix-testkit</a>.</li>
     <li>
-      Rewrites can now report info/warn/error messages via
+      Rules can now report info/warn/error messages via
        <code>ctx.reporter.info/warn/error</code>, see <a href="https://github.com/scalacenter/scalafix/pulls/118">#118</a>.</li>
     <li>
       2.11 support is now only for 2.11.10.</li></ul>
@@ -1332,17 +1337,17 @@ imports.groupByPrefix</code></pre></li>
       <code>CrossVersion.full</code>, meaning the artifact IDs now have a <code>_2.11.11</code> suffix. To depend on them,
       <pre><code class="scala scalatex-site-Styles-highlightMe">// OK
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M8+8-7eff8df5&quot; cross CrossVersion.full
+  &quot;ch.epfl.scala&quot; % &quot;scalafix-core&quot; % &quot;0.5.0-M8+25-f62e68df&quot; cross CrossVersion.full
 // Error
 libraryDependencies +=
-  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M8+8-7eff8df5&quot;</code></pre></li>
+  &quot;ch.epfl.scala&quot; %% &quot;scalafix-core&quot; % &quot;0.5.0-M8+25-f62e68df&quot;</code></pre></li>
     <li>
       NOTE.
       This version depends on a pre-release of scala.meta, which is publised
       to the scalameta bintray repository and requires
       <pre><code class="scala scalatex-site-Styles-highlightMe">resolvers += Resolver.bintrayRepo(&quot;scalameta&quot;, &quot;maven&quot;)</code></pre></li>
     <li>
-      scalafix-cli new supports running semantic rewrites with the
+      scalafix-cli new supports running semantic rules with the
       <code>--classpath/--sourcepath</code> options.</li>
     <li>
       scalafix-cli now supports <code>.sbt</code> files.</li>
@@ -1352,10 +1357,10 @@ libraryDependencies +=
   See <a href="https://github.com/scalacenter/scalafix/milestone/2?closed=1">merged PRs</a>.
   <ul>
     <li>
-      It is possible to load custom rewrites from source with
-      <code>rewrites = [&quot;file:MyRewrite.scala&quot;]</code> or urls
-      <code>rewrites = [&quot;https://gist./../.Rewrite.scala&quot;]</code>.
-      See <a href="#Customrewrites">Custom rewrites</a> for more info.</li>
+      It is possible to load custom rules from source with
+      <code>rules = [&quot;file:MyRule.scala&quot;]</code> or urls
+      <code>rules = [&quot;https://gist./../.Rule.scala&quot;]</code>.
+      See <a href="#Customrules">Custom rules</a> for more info.</li>
     <li>
       <code>imports.groups = []</code> can now be empty, thank you <a href="https://github.com/mlangc">@mlangc</a>
       for contributing this fix!</li>
@@ -1380,7 +1385,7 @@ libraryDependencies +=
     <li>
       Xor2Either is disabled by default now, it was enabled by default
       causing the <code>scalafix</code> command to slow down significantly.
-      Rewrites using <code>scala.meta.Mirror</code> should not experience a
+      Rules using <code>scala.meta.Mirror</code> should not experience a
       slowdown.</li>
     <li>
       Added new <code>Rename(from: Name, to: Name)</code> tree patch that's
@@ -1391,15 +1396,15 @@ libraryDependencies +=
       Scalafix now uses the scala.meta semantic API!
       See <a href="https://github.com/scalameta/scalameta/blob/master/changelog/1.6.0.md#semantic-api">scala.meta 1.6 release notes</a>
       for more details about the semantic api.
-      This first release of the scala.meta semantic API enables rewrites to query for the &quot;symbol&quot;
+      This first release of the scala.meta semantic API enables rules to query for the &quot;symbol&quot;
       of a name that appears in a Scala source file.
       A symbol is a unique identifier of a definition such as a class, val, def or trait.</li>
     <li>
-      To demonstrate the capabilities of rewrites using the scala.meta semantic API,
-      we have included an example rewrite called <a href="https://github.com/scalacenter/scalafix/blob/master/core/src/main/scala/scalafix/rewrite/Xor2Either.scala">Xor2Either</a>.
-      The rewrite migrates usage of <code>cats.data.Xor</code> to <code>scala.util.Either</code>.</li>
+      To demonstrate the capabilities of rules using the scala.meta semantic API,
+      we have included an example rule called <a href="https://github.com/scalacenter/scalafix/blob/master/core/src/main/scala/scalafix/rule/Xor2Either.scala">Xor2Either</a>.
+      The rule migrates usage of <code>cats.data.Xor</code> to <code>scala.util.Either</code>.</li>
     <li>
-      Rewrites can now be implemented in terms of &quot;tree patches&quot;, which are high
+      Rules can now be implemented in terms of &quot;tree patches&quot;, which are high
       level descriptions of common refactoring operations.
       Tree patches can be composed to build more advanced refactorings
       such as <code>Xor2Either</code>.
@@ -1429,10 +1434,10 @@ libraryDependencies +=
 <h2 id="0.2.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.0</h2>
   <ul>
     <li>
-      First semantic rewrite! See <a href="#ExplicitReturnTypes">ExplicitReturnTypes</a>.</li>
+      First semantic rule! See <a href="#ExplicitReturnTypes">ExplicitReturnTypes</a>.</li>
     <li>
       Removed command line interface in favor of compiler plugin.
-      Why? To run semantic rewrites, scalafix needs to compile source files.
+      Why? To run semantic rules, scalafix needs to compile source files.
       The scalafix command line tool has no aspiration to become a build tool.</li></ul>
 <h2 id="0.1.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.0</h2>
   <ul>
@@ -1442,7 +1447,7 @@ libraryDependencies +=
     <li>
       New SBT plugin: <code>sbt-scalafix</code>. See <a href="#sbt-scalafix">sbt-scalafix</a>.</li>
     <li>
-      Two rewrite rules:
+      Two rule rules:
       <a href="#ProcedureSyntax">ProcedureSyntax</a>
       and
       <a href="#DottyVolatileLazyVal">DottyVolatileLazyVal</a>.</li></ul>
@@ -1455,7 +1460,7 @@ libraryDependencies +=
 
 </div><script>
     scalatex.scrollspy.Controller().main(
-      [{"value":"Scalafix - a Scala rewrite tool","children":[{"value":"Links","children":[]},{"value":"Installation","children":[{"value":"sbt-scalafix","children":[{"value":"Verify sbt installation","children":[]},{"value":"scalafix-sbt-example","children":[]},{"value":"sbt settings and tasks","children":[]},{"value":"semanticdb-sbt","children":[]}]},{"value":"scalafix-core","children":[]},{"value":"scalafix-cli","children":[]},{"value":"--help","children":[]}]},{"value":"Configuration","children":[{"value":"rewrites","children":[{"value":"Pre-made rewrites","children":[]},{"value":"Custom rewrites","children":[{"value":"scala:","children":[]},{"value":"github:","children":[]},{"value":"replace:","children":[]},{"value":"file:","children":[]},{"value":"http:","children":[]}]}]},{"value":"lint","children":[]},{"value":"patches","children":[]}]},{"value":"Rewrites","children":[{"value":"ExplicitReturnTypes","children":[]},{"value":"RemoveUnusedImports","children":[]},{"value":"RemoveXmlLiterals","children":[]},{"value":"ProcedureSyntax","children":[]},{"value":"DottyVolatileLazyVal","children":[]},{"value":"ExplicitUnit","children":[]},{"value":"DottyVarArgPattern","children":[]},{"value":"NoAutoTupling","children":[]},{"value":"NoValInForComprehension","children":[]},{"value":"Sbt1","children":[]},{"value":"Planned rewrites...","children":[]}]},{"value":"Creating your own rewrite","children":[{"value":"Before you begin","children":[{"value":"What diff do you want to make?","children":[]},{"value":"Is the expected output unambiguous?","children":[]},{"value":"Who will use your rewrite?","children":[]},{"value":"What code will your rewrite fix?","children":[]},{"value":"How often will your rewrite run?","children":[]}]},{"value":"scalacenter/scalafix.g8","children":[{"value":"scalafix-testkit","children":[]}]},{"value":"Example rewrites","children":[]},{"value":"Vocabulary","children":[{"value":"Rewrite","children":[]},{"value":"RewriteCtx","children":[]},{"value":"Patch","children":[]},{"value":"LintMessage","children":[]},{"value":"LintCategory","children":[]},{"value":"Scalameta","children":[]},{"value":"Semanticdb","children":[]},{"value":"Token","children":[]},{"value":"Tokens","children":[]},{"value":"Tree","children":[]},{"value":"Syntactic","children":[]},{"value":"Semantic","children":[]},{"value":"SemanticCtx","children":[]}]},{"value":"Sharing your rewrite","children":[]}]},{"value":"FAQ","children":[{"value":"Troubleshooting","children":[{"value":"I get resolution errors for org.scalameta:semanticdb-scalac","children":[]},{"value":"Enclosing tree [2873] does not include tree [2872]","children":[]},{"value":"I get exceptions about coursier","children":[]},{"value":"Scalafix doesn't do anything","children":[]},{"value":"RemoveUnusedImports does not remove unused imports","children":[]}]},{"value":"Features","children":[{"value":"IDE support","children":[]}]}]},{"value":"Changelog","children":[{"value":"0.5.x","children":[{"value":"0.5.0","children":[]}]},{"value":"0.4.x","children":[{"value":"0.4.2","children":[]},{"value":"0.4.1","children":[]},{"value":"0.4.0","children":[]}]},{"value":"0.3.x","children":[{"value":"0.3.4","children":[]},{"value":"0.3.3","children":[]},{"value":"0.3.2","children":[]},{"value":"0.3.1","children":[]},{"value":"0.3.0","children":[]},{"value":"0.2.1","children":[]},{"value":"0.2.0","children":[]},{"value":"0.1.0","children":[]}]}]}]}]
+      [{"value":"Scalafix - a Scala rule tool","children":[{"value":"Links","children":[]},{"value":"Installation","children":[{"value":"sbt-scalafix","children":[{"value":"Verify sbt installation","children":[]},{"value":"scalafix-sbt-example","children":[]},{"value":"sbt settings and tasks","children":[]},{"value":"semanticdb-sbt","children":[]}]},{"value":"scalafix-core","children":[]},{"value":"scalafix-cli","children":[]},{"value":"--help","children":[]}]},{"value":"Configuration","children":[{"value":"rewrites","children":[]},{"value":"rules","children":[{"value":"Pre-made rules","children":[]},{"value":"Custom rules","children":[{"value":"scala:","children":[]},{"value":"github:","children":[]},{"value":"replace:","children":[]},{"value":"file:","children":[]},{"value":"http:","children":[]}]}]},{"value":"lint","children":[]},{"value":"patches","children":[]}]},{"value":"Rules","children":[{"value":"ExplicitResultTypes","children":[]},{"value":"ExplicitReturnTypes","children":[]},{"value":"RemoveUnusedImports","children":[]},{"value":"RemoveXmlLiterals","children":[]},{"value":"ProcedureSyntax","children":[]},{"value":"DottyVolatileLazyVal","children":[]},{"value":"ExplicitUnit","children":[]},{"value":"DottyVarArgPattern","children":[]},{"value":"NoAutoTupling","children":[]},{"value":"NoValInForComprehension","children":[]},{"value":"Sbt1","children":[]},{"value":"Planned rules...","children":[]}]},{"value":"Creating your own rule","children":[{"value":"Before you begin","children":[{"value":"What diff do you want to make?","children":[]},{"value":"Is the expected output unambiguous?","children":[]},{"value":"Who will use your rule?","children":[]},{"value":"What code will your rule fix?","children":[]},{"value":"How often will your rule run?","children":[]}]},{"value":"scalacenter/scalafix.g8","children":[{"value":"scalafix-testkit","children":[]}]},{"value":"Example rules","children":[]},{"value":"Vocabulary","children":[{"value":"Rule","children":[]},{"value":"RuleCtx","children":[]},{"value":"Patch","children":[]},{"value":"LintMessage","children":[]},{"value":"LintCategory","children":[]},{"value":"Scalameta","children":[]},{"value":"Semanticdb","children":[]},{"value":"Token","children":[]},{"value":"Tokens","children":[]},{"value":"Tree","children":[]},{"value":"Syntactic","children":[]},{"value":"Semantic","children":[]},{"value":"SemanticCtx","children":[]},{"value":"Rule","children":[]},{"value":"Rewrite","children":[]}]},{"value":"Sharing your rule","children":[]}]},{"value":"FAQ","children":[{"value":"Troubleshooting","children":[{"value":"I get resolution errors for org.scalameta:semanticdb-scalac","children":[]},{"value":"Enclosing tree [2873] does not include tree [2872]","children":[]},{"value":"I get exceptions about coursier","children":[]},{"value":"Scalafix doesn't do anything","children":[]},{"value":"RemoveUnusedImports does not remove unused imports","children":[]}]},{"value":"Features","children":[{"value":"IDE support","children":[]}]}]},{"value":"Changelog","children":[{"value":"0.5.x","children":[{"value":"0.5.0","children":[]}]},{"value":"0.4.x","children":[{"value":"0.4.2","children":[]},{"value":"0.4.1","children":[]},{"value":"0.4.0","children":[]}]},{"value":"0.3.x","children":[{"value":"0.3.4","children":[]},{"value":"0.3.3","children":[]},{"value":"0.3.2","children":[]},{"value":"0.3.1","children":[]},{"value":"0.3.0","children":[]},{"value":"0.2.1","children":[]},{"value":"0.2.0","children":[]},{"value":"0.1.0","children":[]}]}]}]}]
   )</script><script>
     ['DOMContentLoaded', 'load'].forEach(function(ev){
       addEventListener(ev, function(){
@@ -1465,4 +1470,4 @@ libraryDependencies +=
         );
       })
     })
-  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
