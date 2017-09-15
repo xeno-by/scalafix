@@ -268,7 +268,7 @@ wget -O scalafix https://github.com/scalacenter/scalafix/blob/master/scalafix?ra
       instructions
 </p>
   <h1 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h1>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-RC3+4-03f89c82
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scalafix 0.5.0-RC3+6-abc0149a
 Usage: scalafix [options] [&lt;file&gt;...]
   --usage  
         Print usage and exit
@@ -908,7 +908,7 @@ sbt tests/test</code></pre></p>
 
     <h2 id="Patch" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Patch" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Patch</h2>
       A &quot;Patch&quot; is a data structure that describes how to produce a diff.
-      Two patches can combined into a single patch with the <code>+</code> operator.
+      Two patches can be combined into a single patch with the <code>+</code> operator.
       A patch can also be empty. Patches can either be low-level &quot;token patches&quot;,
       that operate on the token level or high-level &quot;tree patches&quot; that operate
       on parsed abstract syntax tree nodes. The public API for patch
@@ -1060,7 +1060,7 @@ def rule(ctx: RuleCtx): Patch = {
       This means it's not necessary to have experience with Scala compiler internals
       to implement Scalafix rules.
       In fact, Scalafix doesn't even depend on the Scala compiler.
-      Since Scalafix is not tied so a single compiler, this means that Scalafix
+      Since Scalafix is not tied to a single compiler, this means that Scalafix
       rules in theory can work with any Scala compiler, including <a href="http://dotty.epfl.ch/">Dotty</a> and
       IntelliJ Scala Plugin.
 
@@ -1077,7 +1077,7 @@ def rule(ctx: RuleCtx): Patch = {
       the <a href="http://scalameta.org/tutorial/#semanticdb-scalac">Scalameta documentation</a>.
 
     <h2 id="Token" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Token" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Token</h2>
-      A token is for example an identifier <code>println</code>, a delimiter <code>[</code> <code>)</code>,
+      A token is, for example, an identifier <code>println</code>, a delimiter <code>[</code> <code>)</code>,
       or a whitespace character like space or newline.
       In the context of Scalafix, a <code>Token</code> means the data structure
       <code>scala.meta.Token</code>.
