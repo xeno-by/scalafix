@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
-
 import scala.meta._
 import scala.meta.inputs.Input
 import scala.meta.internal.inputs._
@@ -42,6 +41,8 @@ import scalafix.syntax._
 import metaconfig.Configured.Ok
 import metaconfig._
 import metaconfig.ConfError
+import scalafix.internal.cli.ClasspathOps
+import scalafix.internal.util.LazySymbolTable
 
 sealed abstract case class CliRunner(
     sourceroot: AbsolutePath,
@@ -89,7 +90,11 @@ sealed abstract case class CliRunner(
       val code = exitCode.get()
       if (config.lint.reporter.hasErrors) {
         ExitStatus.merge(ExitStatus.LinterError, code)
-      } else code
+      } else if (config.reporter.hasErrors) {
+        ExitStatus.merge(ExitStatus.UnexpectedError, code)
+      } else {
+        code
+      }
     }
     display.completedTask(msg, exit == ExitStatus.Ok)
     display.stop()
@@ -358,8 +363,13 @@ object CliRunner {
         (resolveClasspath |@| resolvedSourceroot).andThen {
           case (classpath, root) =>
             val patched = Database.load(classpath, Sourcepath(root))
-            val db =
-              EagerInMemorySemanticdbIndex(patched, Sourcepath(root), classpath)
+            val db = EagerInMemorySemanticdbIndex(
+              patched,
+              Sourcepath(root),
+              classpath,
+              new LazySymbolTable(
+                ClasspathOps.toMclasspath(classpath, common.out))
+            )
             if (verbose) {
               common.err.println(
                 s"Loaded database with ${db.documents.length} documents.")
