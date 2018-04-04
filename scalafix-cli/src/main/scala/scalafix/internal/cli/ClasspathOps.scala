@@ -7,14 +7,13 @@ import scala.meta.metacp
 
 object ClasspathOps {
   def toMclasspath(sclasspath: Classpath, out: PrintStream): Classpath = {
-    // val settings = metacp
-    //   .Settings()
-    //   .withClasspath(sclasspath)
-    //   .withScalaLibrarySynthetics(true)
-    // val reporter = metacp.Reporter().withOut(out)
-    // val mclasspath = scala.meta.cli.Metacp.process(settings, reporter).get
-    // mclasspath
-    sclasspath
+    val settings = metacp
+      .Settings()
+      .withClasspath(sclasspath)
+      .withScalaLibrarySynthetics(true)
+    val reporter = metacp.Reporter().withOut(out)
+    val mclasspath = scala.meta.cli.Metacp.process(settings, reporter).get
+    mclasspath
   }
   def getCurrentClasspath: String = {
     Thread.currentThread.getContextClassLoader match {
