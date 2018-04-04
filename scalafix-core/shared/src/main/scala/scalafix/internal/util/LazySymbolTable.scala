@@ -69,31 +69,26 @@ class LazySymbolTable(mclasspath: Classpath) extends SymbolTable {
   }
 
   private def loadSemanticdbIndex(root: AbsolutePath): Unit = {
-    try {
-      if (root.isDirectory) {
-        loadIndex(root, Files.newInputStream(root.resolve(semanticIdx).toNIO))
-      } else if (PathIO.extension(root.toNIO) == "jar") {
-        val fs = {
-          val map = new HashMap[String, String]()
-          val uri = URI.create("jar:file:" + root.toNIO.toUri.getPath)
-          try FileSystems.newFileSystem(uri, map)
-          catch { case _: FileSystemAlreadyExistsException => FileSystems.getFileSystem(uri) }
-        }
-        try {
-          val jarRoot = AbsolutePath(fs.getPath("/"))
-          loadIndex(
-            jarRoot,
-            Files.newInputStream(jarRoot.resolve(semanticIdx).toNIO)
-          )
-        } finally {
-          fs.close()
-        }
-      } else {
-        throw new IllegalArgumentException(root.toString())
+    if (root.isDirectory) {
+      loadIndex(root, Files.newInputStream(root.resolve(semanticIdx).toNIO))
+    } else if (PathIO.extension(root.toNIO) == "jar") {
+      val fs = {
+        val map = new HashMap[String, String]()
+        val uri = URI.create("jar:file:" + root.toNIO.toUri.getPath)
+        try FileSystems.newFileSystem(uri, map)
+        catch { case _: FileSystemAlreadyExistsException => FileSystems.getFileSystem(uri) }
       }
-    } catch {
-      case _: NoSuchFileException =>
-        ()
+      try {
+        val jarRoot = AbsolutePath(fs.getPath("/"))
+        loadIndex(
+          jarRoot,
+          Files.newInputStream(jarRoot.resolve(semanticIdx).toNIO)
+        )
+      } finally {
+        fs.close()
+      }
+    } else {
+      throw new IllegalArgumentException(root.toString())
     }
   }
 
