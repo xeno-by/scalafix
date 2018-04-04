@@ -2,9 +2,10 @@ package scalafix.internal.util
 
 import scala.meta.internal.semanticdb3.Scala.Symbols
 import java.io.InputStream
-import java.nio.file.Files
+import java.net._
+import java.nio.file._
+import java.util.HashMap
 import org.langmeta.internal.io.PathIO
-import org.langmeta.internal.io.PlatformFileIO
 import org.langmeta.io.AbsolutePath
 import org.langmeta.io.Classpath
 import scala.collection.concurrent.TrieMap
@@ -71,11 +72,20 @@ class LazySymbolTable(mclasspath: Classpath) extends SymbolTable {
     if (root.isDirectory) {
       loadIndex(root, Files.newInputStream(root.resolve(semanticIdx).toNIO))
     } else if (PathIO.extension(root.toNIO) == "jar") {
-      PlatformFileIO.withJarFileSystem(root, create = false) { jarRoot =>
+      val fs = {
+        val map = new HashMap[String, String]()
+        val uri = URI.create("jar:file:" + root.toNIO.toUri.getPath)
+        try FileSystems.newFileSystem(uri, map)
+        catch { case _: FileSystemAlreadyExistsException => FileSystems.getFileSystem(uri) }
+      }
+      try {
+        val jarRoot = AbsolutePath(fs.getPath("/"))
         loadIndex(
           jarRoot,
           Files.newInputStream(jarRoot.resolve(semanticIdx).toNIO)
         )
+      } finally {
+        fs.close()
       }
     } else {
       throw new IllegalArgumentException(root.toString())
