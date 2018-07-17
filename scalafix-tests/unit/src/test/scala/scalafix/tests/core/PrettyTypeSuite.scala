@@ -13,6 +13,7 @@ import scala.{meta => m}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation
 import scala.meta.io.AbsolutePath
+import scalafix.internal.util.Environment
 import scalafix.internal.util.QualifyStrategy
 import scalafix.internal.util.PrettyType
 
@@ -45,7 +46,7 @@ class PrettyTypeSuite extends BasePrettyTypeSuite {
           table.info(sym).getOrElse(throw new NoSuchElementException(sym))
         val obtained =
           PrettyType
-            .toTree(info, table, QualifyStrategy.Readable, fatalErrors = true)
+            .toTree(info, table, Environment.EmptyScope, QualifyStrategy.Readable, fatalErrors = true)
             .tree
         val expectedSyntax =
           // TODO: Remove withOrigin after https://github.com/scalameta/scalameta/issues/1526
@@ -68,6 +69,7 @@ class PrettyTypeFuzzSuite extends BasePrettyTypeSuite {
       PrettyType.toTree(
         info,
         table,
+        Environment.EmptyScope,
         QualifyStrategy.Readable,
         fatalErrors = false
       )

@@ -10,6 +10,7 @@ import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.{semanticdb => s}
 import scala.util.control.NoStackTrace
 import scala.util.control.NonFatal
+import scalafix.v0.Symbol
 import scalapb.GeneratedMessage
 
 case class PrettyResult[T <: Tree](tree: T, imports: List[String])
@@ -19,10 +20,11 @@ object PrettyType {
   def toTree(
       info: s.SymbolInformation,
       table: SymbolTable,
+      scope: Environment.Scope,
       shorten: QualifyStrategy,
       fatalErrors: Boolean
   ): PrettyResult[Tree] = {
-    val pretty = unsafeInstance(table, shorten, fatalErrors)
+    val pretty = unsafeInstance(table, scope, shorten, fatalErrors)
     val result = pretty.toTree(info)
     PrettyResult(result, pretty.getImports())
   }
@@ -30,25 +32,28 @@ object PrettyType {
   def toType(
       tpe: s.Type,
       table: SymbolTable,
+      scope: Environment.Scope,
       shorten: QualifyStrategy,
       fatalErrors: Boolean
   ): PrettyResult[Type] = {
-    val pretty = unsafeInstance(table, shorten, fatalErrors)
+    val pretty = unsafeInstance(table, scope, shorten, fatalErrors)
     val result = pretty.toType(tpe)
     PrettyResult(result, pretty.getImports())
   }
 
   def unsafeInstance(
       table: SymbolTable,
+      scope: Environment.Scope,
       shorten: QualifyStrategy,
       fatalErrors: Boolean
   ): PrettyType =
-    new PrettyType(table, shorten, fatalErrors)
+    new PrettyType(table, scope, shorten, fatalErrors)
 
 }
 
 class PrettyType private (
     table: SymbolTable,
+    scope: Environment.Scope,
     shorten: QualifyStrategy,
     fatalErrors: Boolean
 ) {
@@ -65,10 +70,10 @@ class PrettyType private (
     "toString",
     "equals"
   )
-  private[this] val imports = List.newBuilder[String]
+  private[this] val imports = mutable.MutableList[String]()
 
   def getImports(): List[String] = {
-    val result = imports.result()
+    val result = imports.toList
     imports.clear()
     result
   }
@@ -423,6 +428,50 @@ class PrettyType private (
   def fail(any: GeneratedMessage, cause: Throwable): Nothing =
     throw TypeToTreeError(any.toString, Some(cause))
 
+  /**
+   * Check whether a given symbol is currently in scope, i.e., accessible
+   * by unqualified name.
+   *
+   * @param info
+   * @return
+   */
+  def symbolIsInScope(info: s.SymbolInformation): Boolean = {
+    val symbol = Symbol(info.symbol)
+    symbol match {
+      case Symbol.None => false
+      case Symbol.Local(id) => true
+      case Symbol.Global(info, signature) =>
+        scope.resolveSignature(signature).map(scope.expandTypeAliases(_)) == Some(scope.expandTypeAliases(symbol))
+      // TODO: Handle Symbol.Multi?
+    }
+  }
+
+  /**
+   * Check whether a given symbol's name is not bound to any symbol in the
+   * current scope. This means if we were to import it, it would not be
+   * shadowed.
+   *
+   * @param info
+   * @return
+   */
+  def symbolNameIsUnboundInScope(info: s.SymbolInformation): Boolean = {
+    val symbol = Symbol(info.symbol)
+    symbol match {
+      case Symbol.None => true
+      case Symbol.Local(id) => false
+      case Symbol.Global(info, signature) =>
+        if (scope.resolveSignature(signature).nonEmpty) {
+          false
+        } else {
+          imports.exists { anImport =>
+            val importName = Symbol(anImport).asInstanceOf[Symbol.Global].signature.name
+            importName == signature.name
+          }
+        }
+      // TODO: Handle Symbol.Multi?
+    }
+  }
+
   def toTermRef(info: s.SymbolInformation): Term.Ref = {
     if (info.kind.isParameter) Term.Name(info.name)
     else {
@@ -438,12 +487,17 @@ class PrettyType private (
         case QualifyStrategy.Name =>
           imports += info.symbol
           Term.Name(info.name)
+        case QualifyStrategy.Readable if info.symbol == "_root_/" =>
+          Term.Name(info.name)
         case QualifyStrategy.Readable =>
           val owner = this.info(info.owner)
-          if (owner.kind.isPackageObject ||
-            owner.kind.isPackage ||
-            (owner.kind.isObject && info.kind.isType)) {
-            imports += info.symbol
+          val isInScope = symbolIsInScope(info)
+          val nameIsUnboundInScope = symbolNameIsUnboundInScope(info)
+          if ((isInScope || nameIsUnboundInScope) &&
+            (owner.kind.isPackageObject || owner.kind.isPackage || owner.kind.isObject)) {
+            if (!isInScope) {
+              imports += info.symbol
+            }
             Term.Name(info.name)
           } else {
             Term.Select(toTermRef(owner), Term.Name(info.name))
@@ -471,13 +525,17 @@ class PrettyType private (
     if (shorten.isName || info.kind.isTypeParameter) {
       name
     } else {
+      val isInScope = symbolIsInScope(info)
+      val nameIsUnboundInScope = symbolNameIsUnboundInScope(info)
       val owner = this.info(info.owner)
-      if (shorten.isReadable && (
+      if (shorten.isReadable &&
+          (isInScope || nameIsUnboundInScope) && (
           owner.kind.isPackage ||
           owner.kind.isPackageObject ||
-          (owner.kind.isObject && info.kind.isType)
-        )) {
-        imports += info.symbol
+          owner.kind.isObject)) {
+        if (!isInScope) {
+          imports += info.symbol
+        }
         name
       } else if (owner.kind.isPackage ||
         owner.kind.isObject ||
