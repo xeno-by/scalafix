@@ -179,21 +179,10 @@ object DocSemanticdbIndex {
   def syntheticToLegacy(doc: SemanticDoc, synthetic: s.Synthetic): Synthetic = {
     val pos =
       ScalametaInternals.positionFromRange(doc.input, synthetic.range)
-    val names: List[ResolvedName] = synthetic.text match {
-      case Some(td) =>
-        val input = Input.Stream(
-          InputSynthetic(td.text, doc.input, pos.start, pos.end),
-          StandardCharsets.UTF_8)
-        td.occurrences.iterator
-          .map(o => occurrenceToLegacy(doc, input, o))
-          .toList
-      case _ =>
-        Nil
-    }
     Synthetic(
       pos,
-      synthetic.text.fold("")(_.text),
-      names
+      "",
+      Nil
     )
   }
 
