@@ -1,15 +1,10 @@
 /*
 rules = [
   Disable
-  NoInfer
   "class:scalafix.test.NoDummy"
 ]
 
 Disable.symbols = ["scala.Option.get"]
-
-NoInfer.symbols = [
-  "scala.Predef.any2stringadd"
-]
 */
 
 // rules can be selectively disabled by providing a list of rule
@@ -19,7 +14,7 @@ package test.escapeHatch
 
 object AnchorMultipleRules {
 
-  // scalafix:off NoInfer.any2stringadd, Disable.get
+  // scalafix:off Disable.get
   Some(1) + "foo"
 
   val aDummy = 0 // assert: NoDummy
@@ -27,5 +22,5 @@ object AnchorMultipleRules {
   val a: Option[Int] = Some(1)
   a.get
 
-  /* scalafix:on NoInfer.any2stringadd, Disable.get */
+  /* scalafix:on Disable.get */
 }

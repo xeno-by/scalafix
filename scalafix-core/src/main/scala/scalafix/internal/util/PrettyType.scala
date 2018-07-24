@@ -413,9 +413,9 @@ class PrettyType private (
   case class TypeToTreeError(msg: String, cause: Option[Throwable] = None)
       extends Exception(msg, cause.orNull)
   def fail(sig: s.Signature): Nothing =
-    fail(sig.toSignatureMessage)
+    fail(sig.asMessage)
   def fail(tpe: s.Type): Nothing =
-    fail(tpe.toTypeMessage)
+    fail(tpe.asMessage)
   def fail(tree: Tree): Nothing =
     throw TypeToTreeError(tree.syntax + s"\n\n${tree.structure}")
   def fail(any: GeneratedMessage): Nothing =
