@@ -1,6 +1,14 @@
 import Dependencies._
 inThisBuild(
   List(
+    version := {
+      val customVersion = sys.props.get("scalafix.version")
+      val defaultVersion = {
+        val suffix = if (sys.props.contains("scalafix.snapshot")) "-SNAPSHOT" else ""
+        version.value.replace('+', '-') + suffix
+      }
+      customVersion.getOrElse(defaultVersion)
+    },
     onLoadMessage := s"Welcome to scalafix ${version.value}",
     scalaVersion := "2.12.6",
     crossScalaVersions := List("2.12.6", "2.11.12")

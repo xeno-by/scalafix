@@ -213,7 +213,7 @@ object ScalafixBuild extends AutoPlugin with GhpagesKeys {
     homepage := Some(url("https://github.com/scalacenter/scalafix")),
     autoAPIMappings := true,
     apiURL := Some(url("https://scalacenter.github.io/scalafix/")),
-    organization := "ch.epfl.scala",
+    organization := "com.github.xenoby",
     developers ++= List(
       Developer(
         "xeno-by",
