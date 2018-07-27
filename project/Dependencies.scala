@@ -2,7 +2,8 @@ import sbt._
 /* scalafmt: { maxColumn = 120 }*/
 
 object Dependencies {
-  val scalametaV = "4.0.0-M7"
+  // NOTE: Published from https://github.com/scalameta/scalameta/pull/1723.
+  val scalametaV = "4.0.0-M7-15-dd80713f-SNAPSHOT"
   val metaconfigV = "0.8.3"
   def dotty = "0.9.0-RC1"
   def scala210 = "2.10.6"
