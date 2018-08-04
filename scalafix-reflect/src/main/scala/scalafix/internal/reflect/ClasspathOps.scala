@@ -49,7 +49,7 @@ object ClasspathOps {
       .withOut(devNull) // out prints classpath of proccessed classpath, which is not relevant for scalafix.
       .withErr(out)
     val mclasspath = scala.meta.cli.Metacp.process(settings, reporter)
-    mclasspath.map(x => Classpath(x.entries ++ processed))
+    mclasspath.classpath.map(x => Classpath(x.entries ++ processed))
   }
 
   def newSymbolTable(

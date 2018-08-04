@@ -63,9 +63,7 @@ object Sym {
     def name: String = info.name
     def kind: Kind = new Kind(info)
     def props: Properties = new Properties(info.properties)
-    def access: Accessibility =
-      new Accessibility(info.accessibility.getOrElse(s.Accessibility()))
-
+    def access: Accessibility = new Accessibility(info.access)
     override def toString: String = s"Sym.Info(${info.symbol})"
   }
   object Info {
@@ -117,13 +115,17 @@ object Sym {
       (props & property.value) != 0
   }
 
-  final class Accessibility private[Sym] (a: s.Accessibility) {
-    def isPrivate: Boolean = a.tag.isPrivate
-    def isPrivateThis: Boolean = a.tag.isPrivateThis
-    def isProtected: Boolean = a.tag.isProtected
-    def isProtectedThis: Boolean = a.tag.isProtectedThis
-    def isPublic: Boolean = a.tag.isPublic
-    def within: Sym = new Sym(a.symbol)
+  final class Accessibility private[Sym] (a: s.Access) {
+    def isPrivate: Boolean = a.isInstanceOf[s.PrivateAccess]
+    def isPrivateThis: Boolean = a.isInstanceOf[s.PrivateThisAccess]
+    def isProtected: Boolean = a.isInstanceOf[s.ProtectedAccess]
+    def isProtectedThis: Boolean = a.isInstanceOf[s.ProtectedThisAccess]
+    def isPublic: Boolean = a.isInstanceOf[s.PublicAccess]
+    def within: Sym = a match {
+      case s.PrivateWithinAccess(symbol) => new Sym(symbol)
+      case s.ProtectedWithinAccess(symbol) => new Sym(symbol)
+      case _ => Sym.None
+    }
   }
 
   final class Matcher private (doc: SemanticDoc, syms: Seq[Sym]) {
