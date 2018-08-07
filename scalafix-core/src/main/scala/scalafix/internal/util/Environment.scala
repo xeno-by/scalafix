@@ -270,18 +270,15 @@ object Environment {
   }
 
   private object SourceFileScope {
-    // TODO: Not 100% sure that adding these wildcard imports is equivalent to what Scala does.
-    //
-    // For one thing, SemanticDB doesn't seem to have information about the scala. package
-    // object, which is where scala/collection/immutable/List# is imported by default.
-    //
-    // Another thing is we haven't checked whether explicitly importing from the default
-    // imported packages can be used to unimport symbols from these packages.
+    // TODO: This is not 100% equivalent to what scalac does. With scalac, if
+    // a source file includes some imports of scala.Predef at the top level,
+    // then the default import of scala.Predef is disabled.
     val DefaultWildcardImport: Seq[WildcardImport] =
       Seq(WildcardImport(Symbol("")),
+        WildcardImport(Symbol("java/lang/")),
         WildcardImport(Symbol("scala/")),
-        WildcardImport(Symbol("scala/Predef.")),
-        WildcardImport(Symbol("java/lang/")))
+        WildcardImport(Symbol("scala/package.")),
+        WildcardImport(Symbol("scala/Predef.")))
 
     def apply(
       index: SemanticdbIndex,
