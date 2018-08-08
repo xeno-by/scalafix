@@ -9,7 +9,6 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import scala.meta.internal.ScalametaInternals
 import scala.meta.internal.semanticdb.SymbolInformation
-import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.{semanticdb => s}
@@ -133,10 +132,10 @@ object DocSemanticdbIndex {
       if (stest(p.STATIC)) dflip(d.STATIC)
       if (stest(p.PRIMARY)) dflip(d.PRIMARY)
       if (stest(p.ENUM)) dflip(d.ENUM)
-      info.accessibility.map(_.tag) match {
-        case Some(a.PRIVATE | a.PRIVATE_THIS | a.PRIVATE_WITHIN) =>
+      info.access match {
+        case s.PrivateAccess() | s.PrivateThisAccess() | s.PrivateWithinAccess(_) =>
           dflip(d.PRIVATE)
-        case Some(a.PROTECTED | a.PROTECTED_THIS | a.PROTECTED_WITHIN) =>
+        case s.ProtectedAccess() | s.ProtectedThisAccess() | s.ProtectedWithinAccess(_) =>
           dflip(d.PROTECTED)
         case _ =>
           ()

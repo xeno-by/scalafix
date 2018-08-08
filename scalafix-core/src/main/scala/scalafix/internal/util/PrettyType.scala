@@ -6,7 +6,6 @@ import scala.meta.internal.symtab.SymbolTable
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
-import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.{semanticdb => s}
 import scala.util.control.NoStackTrace
 import scala.util.control.NonFatal
@@ -687,22 +686,21 @@ class PrettyType private (
 
   def toMods(info: s.SymbolInformation): List[Mod] = {
     val buf = List.newBuilder[Mod]
-    info.accessibility.foreach { accessibility =>
-      accessibility.tag match {
-        case a.PRIVATE =>
-          buf += Mod.Private(Name.Anonymous())
-        case a.PRIVATE_WITHIN =>
-          buf += Mod.Private(accessibility.symbol.toIndeterminateName)
-        case a.PRIVATE_THIS =>
-          buf += Mod.Private(Term.This(Name.Anonymous()))
-        case a.PROTECTED =>
-          buf += Mod.Protected(Name.Anonymous())
-        case a.PROTECTED_WITHIN =>
-          buf += Mod.Protected(accessibility.symbol.toIndeterminateName)
-        case a.PROTECTED_THIS =>
-          buf += Mod.Protected(Term.This(Name.Anonymous()))
-        case _ =>
-      }
+    info.access match {
+      case s.PrivateAccess() =>
+        buf += Mod.Private(Name.Anonymous())
+      case s.PrivateWithinAccess(symbol) =>
+        buf += Mod.Private(symbol.toIndeterminateName)
+      case s.PrivateThisAccess() =>
+        buf += Mod.Private(Term.This(Name.Anonymous()))
+      case s.ProtectedAccess() =>
+        buf += Mod.Protected(Name.Anonymous())
+      case s.ProtectedWithinAccess(symbol) =>
+        buf += Mod.Protected(symbol.toIndeterminateName)
+      case s.ProtectedThisAccess() =>
+        buf += Mod.Protected(Term.This(Name.Anonymous()))
+      case _ =>
+        ()
     }
     if (info.is(p.SEALED)) buf += Mod.Sealed()
     if (info.kind.isClass && info.is(p.ABSTRACT)) buf += Mod.Abstract()
