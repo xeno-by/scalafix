@@ -1,7 +1,7 @@
 package scalafix.internal.util
 
 import scala.meta.internal.semanticdb.TypeSignature
-import scala.meta.{Defn, Import, Importee, Name, Pkg, Source, Stat, Template, Tree, Type}
+import scala.meta.{Defn, Import => ImportStat, Importee, Name, Pkg, Source, Stat, Template, Tree, Type}
 import scala.meta.internal.semanticdb.{ClassSignature, TypeRef}
 import scala.meta.internal.symtab.SymbolTable
 import scalafix.v0.{SemanticdbIndex, Signature, Symbol}
@@ -37,30 +37,51 @@ object Environment {
     def expandTypeAliases(symbol: Symbol): Symbol
   }
 
-  // ExplicitImport and WildcardImport /////////////////////////////////////////////////////////////
+  // NamedImport and WildcardImport /////////////////////////////////////////////////////////////
+
+  private abstract class Import
 
   /**
-   * The ExplicitImport case class is used to keep track of an explicit import
-   * in AbstractScope and its subclasses. This supports renaming imports:
-   * simply provide a Signature whose name is different from the imported Symbol.
+   * The NamedImport case class is used to keep track of an explicit import
+   * by name in AbstractScope and its subclasses.
    *
    * @param symbol Fully-qualified Symbol to import
-   * @param signature Signature to import as (i.e., name + kind)
    */
-  private final case class ExplicitImport(symbol: Symbol, signature: Signature)
+  private final case class NamedImport(symbol: Symbol) extends Import
 
   /**
-   * The WildcardImport case class is used to keep track of wildcard import
-   * in AbstractScope and its subclasses. This supports unimports, like:
+   * The RenamedImport case class is used to keep track of an explicit import
+   * with renaming in AbstractScope and its subclasses.
+   *
+   * @param symbol Fully-qualified Symbol to import
+   * @param renameSignature Signature to import as (i.e., name + kind)
+   */
+  private final case class RenamedImport(symbol: Symbol, renameSignature: Signature) extends Import
+
+  /**
+   * The WildcardImport case class is used to keep track of a wildcard import
+   * in AbstractScope and its subclasses.
+   *
+   * @param symbol Fully-qualified Symbol for a package, object or class to
+   *               import all contents from
+   */
+  private final case class WildcardImport(symbol: Symbol) extends Import
+
+  /**
+   * The WildcardImportWithUnimports case class is used to keep track of a
+   * wildcard import that has some unimports in AbstractScope and its
+   * subclasses.
+   *
+   * For example, the following Scala code means import everything except for
+   * FileInputStream from the java.io package, unless another import statement
+   * also imports FileInputStream (explicitly or by wildcard).
    *   import java.io.{FileInputStream => _, _}
-   * The example above means import everything except for FileInputStream
-   * from the java.io package.
    *
    * @param symbol Fully-qualified Symbol for a package, object or class to
    *               import all contents from
    * @param unimports Names to not import
    */
-  private final case class WildcardImport(symbol: Symbol, unimports: Set[Name] = Set.empty)
+  private final case class WildcardImportWithUnimports(symbol: Symbol, unimports: Set[Name]) extends Import
 
   // EmptyScope ////////////////////////////////////////////////////////////////////////////////////
 
@@ -82,15 +103,13 @@ object Environment {
    * @param outerScopeOption is a reference to the outer scope that contains
    *                         this scope (if there is any)
    * @param scopeSymbol is the Symbol identifying this scope
-   * @param explicitImports is the list of explicit imports directly in this scope
-   * @param wildcardImports is the list of wildcard imports directly in this scope
+   * @param imports is the list of imports directly in this scope
    */
   private abstract class AbstractScope(
     protected val index: SemanticdbIndex,
     protected val outerScopeOption: Option[AbstractScope],
     protected val scopeSymbol: Symbol,
-    protected val explicitImports: Seq[ExplicitImport] = Seq.empty,
-    protected val wildcardImports: Seq[WildcardImport] = Seq.empty
+    protected val imports: Seq[Import] = Seq.empty,
   ) extends Scope {
     protected final def symbolTable: SymbolTable = index.asInstanceOf[SymbolTable]
 
@@ -167,10 +186,11 @@ object Environment {
     private def matchingExplicitImportsFromCurrentScope(
       signature: Signature
     ): Seq[Symbol] = {
-      explicitImports.collect {
-        case ExplicitImport(importSymbol, importSignature)
-          if (importSignature == signature) =>
-          importSymbol
+      imports.collect {
+        case NamedImport(importSymbol @ Symbol.Global(importOwnerSymbol, importSignature))
+          if (importSignature == signature) => importSymbol
+        case RenamedImport(importSymbol, importSignature)
+          if (importSignature == signature) => importSymbol
       }.distinct
     }
 
@@ -211,18 +231,20 @@ object Environment {
               // 3. A matching wildcard import in the current scope, unless there is an
               //    ambiguity due to (a) more than one such, (b) a matching definition
               //    at an outer scope, or (c) a matching explicit import at an outer scope
-              val matchingWildcardImportsFromCurrentScope = wildcardImports.flatMap {
-                case WildcardImport(importPackageSymbol, unimportedNames) =>
+              val matchingWildcardImportsFromCurrentScope = imports.flatMap {
+                case WildcardImport(importPackageSymbol) =>
+                  checkSymbolExists(Symbol.Global(importPackageSymbol, signature))
+                case WildcardImportWithUnimports(importPackageSymbol, unimportedNames) =>
                   if (unimportedNames.exists(_.value == signature.name)) {
                     None
                   } else {
                     checkSymbolExists(Symbol.Global(importPackageSymbol, signature))
                   }
+                case _ => None
               }.distinct
               matchingWildcardImportsFromCurrentScope match {
                 // TODO: make sure our choice amongst wildcard imports works correctly
                 // TODO: for some reason "List#" doesn't resolve while "Map#" does, due to what aliases scala.Predef does and doesn't define
-//                case _::_::_ => None
                 case importedSymbol::_ =>
                   val competitorSymbols = importedSymbol +:
                     (outerScopeOption.toSeq.flatMap {
@@ -261,9 +283,8 @@ object Environment {
   private final class SourceFileScope(
     index: SemanticdbIndex,
     scopeSymbol: Symbol,
-    explicitImports: Seq[ExplicitImport],
-    wildcardImports: Seq[WildcardImport]
-  ) extends AbstractScope(index, None, scopeSymbol, explicitImports, wildcardImports) {
+    imports: Seq[Import],
+  ) extends AbstractScope(index, None, scopeSymbol, imports) {
     override protected def matchingDefinitionFromAnyNonTopLevelScope(
       signature: Signature
     ): Option[Symbol] = None
@@ -273,7 +294,7 @@ object Environment {
     // TODO: This is not 100% equivalent to what scalac does. With scalac, if
     // a source file includes some imports of scala.Predef at the top level,
     // then the default import of scala.Predef is disabled.
-    val DefaultWildcardImport: Seq[WildcardImport] =
+    val DefaultWildcardImports: Seq[WildcardImport] =
       Seq(WildcardImport(Symbol("")),
         WildcardImport(Symbol("java/lang/")),
         WildcardImport(Symbol("scala/")),
@@ -283,10 +304,8 @@ object Environment {
     def apply(
       index: SemanticdbIndex,
       scopeSymbol: Symbol,
-      explicitImports: Seq[ExplicitImport],
-      wildcardImports: Seq[WildcardImport]
-    ): SourceFileScope = new SourceFileScope(index, scopeSymbol, explicitImports,
-      DefaultWildcardImport ++ wildcardImports)
+      imports: Seq[Import]
+    ): SourceFileScope = new SourceFileScope(index, scopeSymbol, DefaultWildcardImports ++ imports)
 
     /**
      * Returns a SourceFileScope that's not in any package and doesn't have
@@ -297,7 +316,7 @@ object Environment {
      * @return
      */
     def notInAnyPackage(index: SemanticdbIndex): SourceFileScope =
-      SourceFileScope(index, Symbol.None, Seq.empty, DefaultWildcardImport)
+      SourceFileScope(index, Symbol.None, DefaultWildcardImports)
   }
 
   // TemplateScope /////////////////////////////////////////////////////////////////////////////////
@@ -314,10 +333,9 @@ object Environment {
     outerScope: AbstractScope,
     scopeSymbol: Symbol,
     typeParameters: Set[Signature.TypeParameter],
-    explicitImports: Seq[ExplicitImport],
-    wildcardImports: Seq[WildcardImport]
+    imports: Seq[Import]
   ) extends AbstractScope(
-      index, Some(outerScope), scopeSymbol, explicitImports, wildcardImports) {
+      index, Some(outerScope), scopeSymbol, imports) {
     /**
      * inheritanceOrder is a list of template AbsoluteSymbols in the order
      * in which to check them for definitions that are in scope. The first
@@ -386,9 +404,8 @@ object Environment {
       outerScope: AbstractScope,
       scopeSymbol: Symbol,
       typeParameters: Set[Signature.TypeParameter],
-      explicitImports: Seq[ExplicitImport],
-      wildcardImports: Seq[WildcardImport]
-    ): TemplateScope = new TemplateScope(index, outerScope, scopeSymbol, typeParameters, explicitImports, wildcardImports)
+      imports: Seq[Import]
+    ): TemplateScope = new TemplateScope(index, outerScope, scopeSymbol, typeParameters, imports)
   }
 
   // ValScope //////////////////////////////////////////////////////////////////////////////////////
@@ -535,7 +552,7 @@ object Environment {
         val imports = getImportsBeforeSubtree(stats, subtree)
         val explicitImports = getExplicitImports(index, imports)
         val wildcardImports = getWildcardImports(index, imports)
-        SourceFileScope(index, scopeSymbol, explicitImports, wildcardImports)
+        SourceFileScope(index, scopeSymbol, explicitImports ++ wildcardImports)
       //
       // TemplateScope
       //
@@ -581,7 +598,7 @@ object Environment {
     val imports = getImportsBeforeSubtree(templ.stats, subtree)
     val explicitImports = getExplicitImports(index, imports)
     val wildcardImports = getWildcardImports(index, imports)
-    TemplateScope(index, outerScope, scopeSymbol, typeParameters, explicitImports, wildcardImports)
+    TemplateScope(index, outerScope, scopeSymbol, typeParameters, explicitImports ++ wildcardImports)
   }
 
   /**
@@ -607,10 +624,10 @@ object Environment {
    * @param subtree
    * @return
    */
-  private def getImportsBeforeSubtree(stats: Seq[Stat], subtree: Tree): Seq[Import] = {
+  private def getImportsBeforeSubtree(stats: Seq[Stat], subtree: Tree): Seq[ImportStat] = {
     stats
       .takeWhile(_ != subtree)
-      .collect { case i: Import => i }
+      .collect { case i: ImportStat => i }
   }
 
   /**
@@ -624,8 +641,8 @@ object Environment {
    */
   private def getExplicitImports(
     index: SemanticdbIndex,
-    imports: Seq[Import]
-  ): Seq[ExplicitImport] = {
+    imports: Seq[ImportStat]
+  ): Seq[Import] = {
     // One implementation of Symbol is Symbol.Multi, which contains a list of
     // Symbols. This function expands out both Multi and non-Multi Symbols to
     // a Seq of non-Multi Symbols.
@@ -637,7 +654,7 @@ object Environment {
     // Iterate over each of the imports. (A compound import statement that
     // contains a list of symbols to import is visited once per symbol.)
     for (
-      Import(importers) <- imports;
+      ImportStat(importers) <- imports;
       importer <- importers;
       importee <- importer.importees;
       symbolOrSymbols <- index.symbol(importee).toSeq;  // Won't compile unless we convert Option to Seq
@@ -647,20 +664,18 @@ object Environment {
       explicitImports <- PartialFunction.condOpt(importee) {
         // Normal case: non-renaming import
         case importee: Importee.Name =>
-          symbol match {
-            case Symbol.Global(owner, signature) => ExplicitImport(symbol, signature)
-          }
+          NamedImport(symbol)
         // Renaming imports
         case Importee.Rename(name, Name(rename)) =>
           symbol match {
             case Symbol.Global(owner, signature) => signature match {
-              case Signature.Type(name) => ExplicitImport(symbol, Signature.Type(rename))
-              case Signature.Term(name) => ExplicitImport(symbol, Signature.Term(rename))
-              case Signature.Package(name) => ExplicitImport(symbol, Signature.Package(rename))
+              case Signature.Type(name) => RenamedImport(symbol, Signature.Type(rename))
+              case Signature.Term(name) => RenamedImport(symbol, Signature.Term(rename))
+              case Signature.Package(name) => RenamedImport(symbol, Signature.Package(rename))
               case Signature.Method(name, disambiguator) =>
-                ExplicitImport(symbol, Signature.Method(rename, disambiguator))
-              case Signature.TypeParameter(name) => ExplicitImport(symbol, Signature.TypeParameter(rename))
-              case Signature.TermParameter(name) => ExplicitImport(symbol, Signature.TermParameter(rename))
+                RenamedImport(symbol, Signature.Method(rename, disambiguator))
+              case Signature.TypeParameter(name) => RenamedImport(symbol, Signature.TypeParameter(rename))
+              case Signature.TermParameter(name) => RenamedImport(symbol, Signature.TermParameter(rename))
             }
           }
         // Wildcards and Unimports are not explicit imports; they are handled
@@ -680,10 +695,10 @@ object Environment {
    */
   private def getWildcardImports(
     index: SemanticdbIndex,
-    imports: Seq[Import]
-  ): Seq[WildcardImport] = {
+    imports: Seq[ImportStat]
+  ): Seq[Import] = {
     for (
-      Import(importers) <- imports;
+      ImportStat(importers) <- imports;
       importer <- importers if importer.importees.contains(Importee.Wildcard);
       symbol <- index.symbol(importer.ref);
       unimports = importer.importees.collect {
@@ -691,7 +706,11 @@ object Environment {
       }.toSet
     ) yield {
       assert(!symbol.isInstanceOf[Symbol.Multi])
-      WildcardImport(symbol, unimports)
+      if (unimports.isEmpty) {
+        WildcardImport(symbol)
+      } else {
+        WildcardImportWithUnimports(symbol, unimports)
+      }
     }
   }
 }
