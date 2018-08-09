@@ -436,12 +436,15 @@ class PrettyType private (
    * @return
    */
   def symbolIsInScope(info: s.SymbolInformation): Boolean = {
+    def symbolsAreEquivalent(symbol1: Symbol, symbol2: Symbol): Boolean = {
+      Environment.expandTypeAliases(table, symbol1) == Environment.expandTypeAliases(table, symbol2)
+    }
     val symbol = Symbol(info.symbol)
     symbol match {
       case Symbol.None => false
       case Symbol.Local(id) => true
       case Symbol.Global(info, signature) =>
-        scope.resolveSignature(signature).map(scope.expandTypeAliases(_)) == Some(scope.expandTypeAliases(symbol))
+        scope.resolveSignature(signature).map(symbolsAreEquivalent(symbol, _)).getOrElse(false)
       // TODO: Handle Symbol.Multi?
     }
   }

@@ -24,17 +24,6 @@ object Environment {
      * @return
      */
     def resolveSignature(signature: Signature): Option[Symbol]
-
-    /**
-     * If symbol is a type alias, iteratively expand the type alias to its
-     * definition until we get to a symbol that is not a type alias. This
-     * allows us to determine when two different symbols that are type aliases
-     * actually refer to the same type.
-     *
-     * @param symbol
-     * @return
-     */
-    def expandTypeAliases(symbol: Symbol): Symbol
   }
 
   // NamedImport and WildcardImport /////////////////////////////////////////////////////////////
@@ -91,7 +80,6 @@ object Environment {
    */
   object EmptyScope extends Scope {
     override def resolveSignature(signature: Signature): Option[Symbol] = None
-    override def expandTypeAliases(symbol: Symbol): Symbol = symbol
   }
 
   // AbstractScope /////////////////////////////////////////////////////////////////////////////////
@@ -127,19 +115,6 @@ object Environment {
       symbolTable
         .info(symbol.syntax)
         .map { symbolInfo => symbol }
-    }
-
-    final override def expandTypeAliases(
-      symbol: Symbol
-    ): Symbol = {
-      symbolTable.info(symbol.syntax) match {
-        case Some(symbolInfo) if symbolInfo.kind.isType => symbolInfo.signature match {
-          case TypeSignature(_, TypeRef(_, lowerBoundSymbol, _), TypeRef(_, upperBoundSymbol, _))
-            if lowerBoundSymbol == upperBoundSymbol => expandTypeAliases(Symbol(lowerBoundSymbol))
-          case _ => symbol
-        }
-        case _ => symbol
-      }
     }
 
     /**
@@ -243,8 +218,8 @@ object Environment {
                 case _ => None
               }.distinct
               matchingWildcardImportsFromCurrentScope match {
-                // TODO: make sure our choice amongst wildcard imports works correctly
-                // TODO: for some reason "List#" doesn't resolve while "Map#" does, due to what aliases scala.Predef does and doesn't define
+                // TODO: Remove duplicate imports after expanding type aliases
+                // TODO: Make sure our choice amongst wildcard imports works correctly
                 case importedSymbol::_ =>
                   val competitorSymbols = importedSymbol +:
                     (outerScopeOption.toSeq.flatMap {
@@ -296,10 +271,10 @@ object Environment {
     // then the default import of scala.Predef is disabled.
     val DefaultWildcardImports: Seq[WildcardImport] =
       Seq(WildcardImport(Symbol("")),
-        WildcardImport(Symbol("java/lang/")),
         WildcardImport(Symbol("scala/")),
         WildcardImport(Symbol("scala/package.")),
-        WildcardImport(Symbol("scala/Predef.")))
+        WildcardImport(Symbol("scala/Predef.")),
+        WildcardImport(Symbol("java/lang/")))
 
     def apply(
       index: SemanticdbIndex,
@@ -711,6 +686,32 @@ object Environment {
       } else {
         WildcardImportWithUnimports(symbol, unimports)
       }
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // Utility functions
+  //
+
+  /**
+   * If symbol is a type alias, iteratively expand the type alias to its
+   * definition until we get to a symbol that is not a type alias. This
+   * allows us to determine when two different symbols that are type aliases
+   * actually refer to the same type.
+   *
+   * @param symbolTable used to look up SymbolInformation for a Symbol
+   * @param symbol
+   * @return
+   */
+  def expandTypeAliases(symbolTable: SymbolTable, symbol: Symbol): Symbol = {
+    symbolTable.info(symbol.syntax) match {
+      case Some(symbolInfo) if symbolInfo.kind.isType => symbolInfo.signature match {
+        case TypeSignature(_, TypeRef(_, lowerBoundSymbol, _), TypeRef(_, upperBoundSymbol, _))
+          if lowerBoundSymbol == upperBoundSymbol =>
+          expandTypeAliases(symbolTable, Symbol(lowerBoundSymbol))
+        case _ => symbol
+      }
+      case _ => symbol
     }
   }
 }
