@@ -20,6 +20,7 @@ import metaconfig.Configured
 import scalafix.internal.util.PrettyResult
 import scalafix.internal.util.QualifyStrategy
 import scalafix.internal.util.PrettyType
+import scalafix.internal.util.Environment
 import scala.meta.internal.symtab.SymbolTable
 import scalafix.v1.MissingSymbolException
 
@@ -41,6 +42,7 @@ case class ExplicitResultTypes(
 
   def this(index: SemanticdbIndex) =
     this(index, ExplicitResultTypesConfig.default)
+
   override def init(config: Conf): Configured[Rule] =
     config // Support deprecated explicitReturnTypes config
       .getOrElse("explicitReturnTypes", "ExplicitResultTypes")(
@@ -76,11 +78,14 @@ case class ExplicitResultTypes(
     case _: Defn.Def => MemberKind.Def
     case _: Defn.Var => MemberKind.Var
   }
+
   import scala.meta.internal.{semanticdb => s}
+
   def unsafeToType(
       ctx: RuleCtx,
       pos: Position,
-      symbol: Symbol
+      symbol: Symbol,
+      defn: Defn
   ): PrettyResult[Type] = {
     val info = index.asInstanceOf[SymbolTable].info(symbol.syntax).get
     val tpe = info.signature match {
@@ -91,9 +96,11 @@ case class ExplicitResultTypes(
       case els =>
         throw new IllegalArgumentException(s"Unsupported signature $els")
     }
+    val scope = Environment.getScopeForDefn(index, defn)
     PrettyType.toType(
       tpe,
       index.asInstanceOf[SymbolTable],
+      scope,
       if (config.unsafeShortenNames) QualifyStrategy.Readable
       else QualifyStrategy.Full,
       fatalErrors = config.fatalWarnings
@@ -103,10 +110,11 @@ case class ExplicitResultTypes(
   def toType(
       ctx: RuleCtx,
       pos: Position,
-      symbol: Symbol
+      symbol: Symbol,
+      defn: Defn
   ): Option[PrettyResult[Type]] = {
     try {
-      Some(unsafeToType(ctx, pos, symbol))
+      Some(unsafeToType(ctx, pos, symbol, defn))
     } catch {
       case e: MissingSymbolException =>
         if (config.fatalWarnings) {
@@ -121,11 +129,12 @@ case class ExplicitResultTypes(
 
   override def fix(ctx: RuleCtx): Patch = {
     val table = index.asInstanceOf[SymbolTable]
+
     def defnType(defn: Defn): Option[(Type, Patch)] =
       for {
         name <- defnName(defn)
         defnSymbol <- name.symbol
-        result <- toType(ctx, name.pos, defnSymbol)
+        result <- toType(ctx, name.pos, defnSymbol, defn)
       } yield {
         val addGlobalImports = result.imports.map { s =>
           val symbol = Symbol(s)
@@ -133,8 +142,11 @@ case class ExplicitResultTypes(
         }
         result.tree -> addGlobalImports.asPatch
       }
+
     import scala.meta._
+
     def fix(defn: Defn, body: Term): Patch = {
+      val scope = Environment.getScopeForDefn(index, defn)
       val lst = ctx.tokenList
       import lst._
       for {
@@ -177,7 +189,10 @@ case class ExplicitResultTypes(
       def isImplicit: Boolean =
         defn.hasMod(mod"implicit") && !isImplicitly(body)
 
-      def hasParentWihTemplate: Boolean =
+      def matchesOnlyImplicits(): Boolean =
+        !config.onlyImplicits || isImplicit
+
+      def hasParentWithTemplate: Boolean =
         defn.parent.exists(_.is[Template])
 
       def isLocal =
@@ -186,8 +201,8 @@ case class ExplicitResultTypes(
           case None => false
         } else false
 
-      isImplicit && !isLocal || {
-        hasParentWihTemplate &&
+      matchesOnlyImplicits() && !isLocal || {
+        hasParentWithTemplate &&
         !defn.hasMod(mod"implicit") &&
         !matchesSimpleDefinition() &&
         matchesMemberKind() &&

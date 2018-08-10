@@ -2,6 +2,7 @@
 rules = ExplicitResultTypes
 ExplicitResultTypes.memberKind = [Val, Def, Var]
 ExplicitResultTypes.memberVisibility = [Public, Protected]
+ExplicitResultTypes.unsafeShortenNames = true
  */
 package test.explicitResultTypes
 
@@ -52,4 +53,8 @@ object ExplicitResultTypesBase {
     }
     val `→` = `->`
   }
+  class OuterClass {
+    class InnerClass { }
+  }
+  def testPathDependentTypes(outer: OuterClass) = new outer.InnerClass()
 }
